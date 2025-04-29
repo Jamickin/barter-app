@@ -1,0 +1,46 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+    
+    // Only allow images with appropriate size
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*') 
+        && request.resource.size < 5 * 1024 * 1024; // 5MB max
+    }
+
+    // Default rule - deny everything unless explicitly allowed
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // Listing images - users can upload to their own directory
+    match /listings/{userId}/{imageId} {
+      // Anyone can view listing images
+      allow read: if true;
+      // Only the listing owner can upload images to their directory
+      allow create, update: if isOwner(userId) && isValidImage();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // User profile images
+    match /users/{userId}/{imageId} {
+      // Anyone can view profile images
+      allow read: if true;
+      // Only the user can upload their own profile image
+      allow create, update: if isOwner(userId) && isValidImage();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+  }
+}

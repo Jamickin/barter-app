@@ -1,35 +1,25 @@
-@import './base.css';
+/* src/assets/main.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-}
-
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+@import 'tailwindcss' /* Custom Utility Classes */ @layer utilities {
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
   }
 }
 
-@media (min-width: 1024px) {
+/* Custom Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply dark mode by default if user prefers it */
+@media (prefers-color-scheme: dark) {
   body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    @apply bg-zinc-900 text-zinc-100;
   }
 }
