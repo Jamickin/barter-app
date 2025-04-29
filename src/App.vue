@@ -82,7 +82,7 @@
       <!-- Flash Message -->
       <div
         v-if="flashMessage"
-        class="mb-6 border rounded-md shadow-sm border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900 p-4 fade-in flex items-center"
+        class="mb-6 border rounded-md shadow-sm border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30 p-4 fade-in flex items-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

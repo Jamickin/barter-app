@@ -1,9 +1,53 @@
 /* src/assets/main.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-@import 'tailwindcss' /* Custom Utility Classes */ @layer utilities {
+@import 'tailwindcss';
+
+/* Custom CSS Variables */
+:root {
+  /* Light mode colors */
+  --color-background: #ffffff;
+  --color-background-soft: #f9fafb;
+  --color-background-mute: #f3f4f6;
+  --color-border: #e5e7eb;
+  --color-heading: #111827;
+  --color-text: #374151;
+  --color-text-soft: #6b7280;
+  --color-primary: #ea580c;
+  --color-primary-hover: #f97316;
+  --color-primary-soft: #ffedd5;
+}
+
+/* Dark mode variables */
+.dark {
+  --color-background: #18181b;
+  --color-background-soft: #27272a;
+  --color-background-mute: #3f3f46;
+  --color-border: #52525b;
+  --color-heading: #f9fafb;
+  --color-text: #e5e7eb;
+  --color-text-soft: #9ca3af;
+  --color-primary: #f97316;
+  --color-primary-hover: #ea580c;
+  --color-primary-soft: #7c2d12;
+}
+
+/* Base styles */
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply bg-zinc-50 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100;
+}
+
+/* Custom Utility Classes */
+@layer utilities {
   .fade-in {
     animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
 
@@ -17,9 +61,42 @@
   }
 }
 
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 /* Apply dark mode by default if user prefers it */
 @media (prefers-color-scheme: dark) {
   body {
     @apply bg-zinc-900 text-zinc-100;
   }
+}
+
+/* Focus styles for better accessibility */
+*:focus-visible {
+  @apply outline-none ring-2 ring-orange-500 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-100 dark:bg-zinc-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-300 dark:bg-zinc-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-400 dark:bg-zinc-500;
 }

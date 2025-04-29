@@ -12,6 +12,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/AboutView.vue'),
+    },
+    {
       path: '/listings',
       name: 'listings',
       component: () => import('../views/ListingsView.vue'),
@@ -57,7 +62,26 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
+    {
+      // Catch-all 404
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/NotFoundView.vue'),
+    },
   ],
+  // Smooth scrolling behavior
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+      }
+    } else {
+      return { top: 0, behavior: 'smooth' }
+    }
+  },
 })
 
 // Navigation guard for auth protection
