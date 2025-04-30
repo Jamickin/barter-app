@@ -19,6 +19,25 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://barterapp.com" />
     <meta property="og:image" content="/og-image.jpg" />
+
+    <!-- Preload dark mode script to prevent flash -->
+    <script>
+      // Initialize dark mode based on user preference
+      ;(function () {
+        // Check for stored theme preference
+        const storedTheme = localStorage.getItem('theme')
+
+        // Apply dark mode if stored preference is 'dark' or if no stored preference and system prefers dark
+        if (
+          storedTheme === 'dark' ||
+          (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

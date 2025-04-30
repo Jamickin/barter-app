@@ -1,157 +1,104 @@
 <template>
-  <div>
+  <div class="listing-detail">
     <!-- Loading state -->
-    <div v-if="isLoading" class="flex justify-center items-center py-12">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"
-      ></div>
+    <div v-if="isLoading" class="loading-container">
+      <div class="spinner"></div>
     </div>
 
     <!-- Error state -->
     <div
       v-else-if="error"
-      class="bg-red-50 dark:bg-red-900/30 p-4 rounded-md text-red-700 dark:text-red-300"
+      class="error-message"
     >
-      {{ error }}
-      <div class="mt-2">
-        <router-link to="/listings" class="text-red-700 dark:text-red-300 underline">
-          Return to listings
-        </router-link>
-      </div>
-    </div>
-
-    <!-- Listing details -->
-    <div v-else-if="listing" class="bg-white dark:bg-zinc-800 rounded-xl shadow-md overflow-hidden">
-      <!-- Image if available -->
-      <img
-        v-if="listing.image_url"
-        :src="listing.image_url"
-        :alt="listing.tradeWhat"
-        class="w-full h-64 object-cover"
-      />
-
-      <div class="p-6">
-        <!-- Status Badge -->
-        <div v-if="listing.status" class="mb-3">
-          <span
-            class="px-2.5 py-1 text-xs font-medium rounded-full"
-            :class="getStatusClasses(listing.status)"
-          >
-            {{ getStatusText(listing.status) }}
-          </span>
-        </div>
-
-        <!-- Title -->
-        <h1 class="text-2xl font-bold mb-2 text-zinc-800 dark:text-white">
-          {{ listing.tradeWhat }} <span class="text-zinc-500 dark:text-zinc-400">for</span>
-          {{ listing.forWhat }}
-        </h1>
-
-        <!-- Category info -->
-        <div v-if="listing.category_id" class="mb-4">
-          <span class="font-medium text-zinc-700 dark:text-zinc-300">Category: </span>
-          <span class="text-orange-600">{{ getCategoryName(listing.category_id) }}</span>
-        </div>
-
-        <!-- Owner info -->
-        <div class="mb-6 flex items-center">
-          <span class="font-medium text-zinc-700 dark:text-zinc-300 mr-2">Listed by: </span>
-          <router-link :to="`/profile/${listing.by_user_id}`" class="flex items-center">
-            <div
-              class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-xs"
-            >
-              {{ getInitials(listing.owner?.name || '') }}
-            </div>
-            <span class="ml-2 text-orange-600">{{ listing.owner?.name }}</span>
-          </router-link>
-        </div>
-
-        <!-- Date info -->
-        <div class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-          Listed on {{ formatDate(listing.created_at) }}
-          <span
-            v-if="
-              listing.updated_at && listing.updated_at.getTime() !== listing.created_at.getTime()
-            "
-          >
-            · Updated on {{ formatDate(listing.updated_at) }}
-          </span>
-        </div>
-
-        <!-- Description if available -->
-        <div v-if="listing.description" class="mb-6">
-          <h2 class="text-lg font-semibold mb-2 text-zinc-800 dark:text-white">Description</h2>
-          <p class="text-zinc-700 dark:text-zinc-300">{{ listing.description }}</p>
-        </div>
-
-        <!-- Action buttons -->
-        <div class="flex flex-wrap gap-3 mt-6">
-          <!-- Contact seller button - only if user is not the owner -->
-          <button
-            v-if="isAuthenticated && currentUserId !== listing.by_user_id"
-            @click="contactSeller"
-            class="bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded-md"
-          >
-            Contact Seller
-          </button>
-
-          <!-- Edit button - only if user is the owner -->
-          <router-link
-            v-if="isAuthenticated && (currentUserId === listing.by_user_id || isAdmin)"
-            :to="`/edit-listing/${listing.id}`"
-            class="bg-zinc-700 hover:bg-zinc-600 text-white py-2 px-4 rounded-md"
-          >
-            Edit Listing
-          </router-link>
-
-          <!-- Delete button - only if user is the owner -->
-          <button
-            v-if="isAuthenticated && (currentUserId === listing.by_user_id || isAdmin)"
-            @click="confirmDelete"
-            class="bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded-md"
-          >
-            Delete
-          </button>
-        </div>
-
-        <!-- Status management (for owner) -->
-        <div
-          v-if="isAuthenticated && currentUserId === listing.by_user_id"
-          class="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700"
+      <div class="error-content">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="error-icon"
         >
-          <h2 class="text-lg font-semibold mb-3 text-zinc-800 dark:text-white">Update Status</h2>
-          <div class="flex flex-wrap gap-2">
-            <button
-              @click="updateStatus('available')"
-              class="px-3 py-1 rounded-md text-sm"
-              :class="[
-                listing.status === 'available' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-                'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300',
-              ]"
-              :disabled="listing.status === 'available'"
+          <path
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <div>
+          <h3 class="error-title">Error</h3>
+          <p>{{ error }}</p>
+          <div class="error-action">
+            <router-link
+              to="/listings"
+              class="error-link"
             >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="status-icon"
+              >
+                <path
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
               Available
             </button>
             <button
               @click="updateStatus('pending')"
-              class="px-3 py-1 rounded-md text-sm"
-              :class="[
-                listing.status === 'pending' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-                'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300',
-              ]"
+              class="status-btn pending-btn"
+              :class="{ 'disabled': listing.status === 'pending' }"
               :disabled="listing.status === 'pending'"
             >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="status-icon"
+              >
+                <path
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
               Trade Pending
             </button>
             <button
               @click="updateStatus('completed')"
-              class="px-3 py-1 rounded-md text-sm"
-              :class="[
-                listing.status === 'completed' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-                'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300',
-              ]"
+              class="status-btn completed-btn"
+              :class="{ 'disabled': listing.status === 'completed' }"
               :disabled="listing.status === 'completed'"
             >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="status-icon"
+              >
+                <path
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
               Mark Completed
             </button>
           </div>
@@ -162,26 +109,31 @@
     <!-- Delete confirmation modal -->
     <div
       v-if="showDeleteModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      class="modal-overlay"
     >
-      <div class="bg-white dark:bg-zinc-800 rounded-lg max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold mb-3 text-zinc-800 dark:text-white">Confirm Delete</h3>
-        <p class="text-zinc-700 dark:text-zinc-300 mb-6">
+      <div class="modal-container">
+        <h3 class="modal-title">Confirm Delete</h3>
+        <p class="modal-message">
           Are you sure you want to delete this listing? This action cannot be undone.
         </p>
-        <div class="flex justify-end gap-3">
+        <div class="modal-actions">
           <button
             @click="showDeleteModal = false"
-            class="px-4 py-2 bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-md"
+            class="btn cancel-btn"
           >
             Cancel
           </button>
           <button
             @click="deleteListing"
-            class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md"
+            class="btn confirm-delete-btn"
             :disabled="isDeleting"
           >
-            <span v-if="isDeleting">Deleting...</span>
+            <span v-if="isDeleting" class="loading-spinner">
+              <svg class="spinner-icon" viewBox="0 0 24 24">
+                <circle class="spinner-circle" cx="12" cy="12" r="10" stroke="currentColor" fill="none" stroke-width="4"></circle>
+              </svg>
+              Deleting...
+            </span>
             <span v-else>Delete</span>
           </button>
         </div>
@@ -397,13 +349,522 @@ function getStatusText(status) {
   }
   return statusMap[status] || 'Unknown'
 }
-
-function getStatusClasses(status) {
-  const classMap = {
-    available: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    pending: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  }
-  return classMap[status] || 'bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-300'
-}
 </script>
+
+<style scoped>
+.listing-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 0.25rem solid rgba(234, 88, 12, 0.1);
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error-message {
+  background-color: #fee2e2;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #b91c1c;
+}
+
+.dark-theme .error-message {
+  background-color: rgba(185, 28, 28, 0.2);
+  color: #f87171;
+}
+
+.error-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.error-icon {
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.error-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.error-action {
+  margin-top: 1rem;
+}
+
+.error-link {
+  display: inline-flex;
+  align-items: center;
+  color: #b91c1c;
+  text-decoration: underline;
+}
+
+.dark-theme .error-link {
+  color: #f87171;
+}
+
+.back-icon {
+  margin-right: 0.5rem;
+}
+
+.listing-card {
+  background-color: var(--color-background);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  overflow: hidden;
+}
+
+.back-link-mobile {
+  padding: 1rem;
+  display: block;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-primary);
+}
+
+.listing-image,
+.listing-image-placeholder {
+  width: 100%;
+  height: 20rem;
+  object-fit: cover;
+}
+
+.listing-image-placeholder {
+  background-color: #e4e4e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a1a1aa;
+}
+
+.dark-theme .listing-image-placeholder {
+  background-color: #3f3f46;
+  color: #71717a;
+}
+
+.listing-content {
+  padding: 1.5rem;
+}
+
+.status-badge-container {
+  margin-bottom: 0.75rem;
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.available {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.pending {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.completed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.dark-theme .available {
+  background-color: rgba(6, 95, 70, 0.2);
+  color: #34d399;
+}
+
+.dark-theme .pending {
+  background-color: rgba(154, 52, 18, 0.2);
+  color: #fb923c;
+}
+
+.dark-theme .completed {
+  background-color: rgba(30, 64, 175, 0.2);
+  color: #60a5fa;
+}
+
+.listing-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-main);
+}
+
+.for {
+  color: var(--color-text-secondary);
+}
+
+.category-info {
+  margin-bottom: 1rem;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--color-text-main);
+}
+
+.category-value {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.owner-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.owner-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.owner-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #ffedd5;
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin: 0 0.5rem;
+}
+
+.dark-theme .owner-avatar {
+  background-color: rgba(194, 65, 12, 0.2);
+  color: #fb923c;
+}
+
+.owner-name {
+  color: var(--color-primary);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.owner-link:hover .owner-name {
+  color: var(--color-primary-hover);
+}
+
+.date-info {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-main);
+}
+
+.description-text {
+  background-color: var(--color-background-alt);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  color: var(--color-text-main);
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.contact-btn {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.contact-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.edit-btn {
+  background-color: #52525b;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #3f3f46;
+}
+
+.delete-btn {
+  background-color: #dc2626;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #b91c1c;
+}
+
+.button-icon {
+  margin-right: 0.5rem;
+}
+
+.status-management {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.status-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.status-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.status-icon {
+  margin-right: 0.25rem;
+}
+
+.available-btn {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.available-btn:hover:not(.disabled) {
+  background-color: #a7f3d0;
+}
+
+.pending-btn {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.pending-btn:hover:not(.disabled) {
+  background-color: #fed7aa;
+}
+
+.completed-btn {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.completed-btn:hover:not(.disabled) {
+  background-color: #bfdbfe;
+}
+
+.dark-theme .available-btn {
+  background-color: rgba(6, 95, 70, 0.2);
+  color: #34d399;
+}
+
+.dark-theme .available-btn:hover:not(.disabled) {
+  background-color: rgba(6, 95, 70, 0.3);
+}
+
+.dark-theme .pending-btn {
+  background-color: rgba(154, 52, 18, 0.2);
+  color: #fb923c;
+}
+
+.dark-theme .pending-btn:hover:not(.disabled) {
+  background-color: rgba(154, 52, 18, 0.3);
+}
+
+.dark-theme .completed-btn {
+  background-color: rgba(30, 64, 175, 0.2);
+  color: #60a5fa;
+}
+
+.dark-theme .completed-btn:hover:not(.disabled) {
+  background-color: rgba(30, 64, 175, 0.3);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal-container {
+  background-color: var(--color-background);
+  border-radius: 0.5rem;
+  max-width: 28rem;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--color-shadow);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-main);
+}
+
+.modal-message {
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.cancel-btn {
+  background-color: #e4e4e7;
+  color: var(--color-text-main);
+}
+
+.cancel-btn:hover {
+  background-color: #d4d4d8;
+}
+
+.dark-theme .cancel-btn {
+  background-color: #3f3f46;
+  color: #e4e4e7;
+}
+
+.dark-theme .cancel-btn:hover {
+  background-color: #52525b;
+}
+
+.confirm-delete-btn {
+  background-color: #dc2626;
+  color: white;
+}
+
+.confirm-delete-btn:hover {
+  background-color: #b91c1c;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.spinner-circle {
+  opacity: 0.25;
+}
+
+.spinner-circle:nth-child(1) {
+  opacity: 0.75;
+  stroke-dasharray: 62.83;
+  stroke-dashoffset: 62.83;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 62.83;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -62.83;
+  }
+}
+
+@media (min-width: 768px) {
+  .back-link-mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .listing-title {
+    font-size: 1.5rem;
+  }
+
+  .action-buttons,
+  .status-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .btn,
+  .status-buttons .status-btn {
+    width: 100%;
+  }
+}
+</style>

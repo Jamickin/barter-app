@@ -1,27 +1,24 @@
 <template>
-  <div>
-    <h1 class="text-2xl font-bold mb-6 text-zinc-800 dark:text-white">Listings</h1>
+  <div class="listings-page">
+    <h1 class="page-title">Listings</h1>
 
     <!-- Search and filter -->
-    <div class="mb-8 w-full">
+    <div class="search-card">
       <form @submit.prevent="applyFilters">
-        <div class="flex flex-col md:flex-row gap-4">
+        <div class="search-form">
           <!-- Search input -->
-          <div class="flex-grow">
+          <div class="search-input-container">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Search for items to trade..."
-              class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
+              class="search-input"
             />
           </div>
 
           <!-- Category filter -->
-          <div class="w-full md:w-1/3">
-            <select
-              v-model="selectedCategory"
-              class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
-            >
+          <div class="category-filter">
+            <select v-model="selectedCategory" class="category-select">
               <option value="">All Categories</option>
               <option v-for="category in categories" :key="category.id" :value="category.id">
                 {{ category.name }}
@@ -30,18 +27,13 @@
           </div>
 
           <!-- Search buttons -->
-          <div class="flex gap-2">
-            <button
-              type="submit"
-              class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-md whitespace-nowrap"
-            >
-              Search
-            </button>
+          <div class="search-buttons">
+            <button type="submit" class="btn search-btn">Search</button>
             <button
               v-if="hasFilters"
               @click="resetFilters"
               type="button"
-              class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-md whitespace-nowrap"
+              class="btn btn-secondary clear-btn"
             >
               Clear
             </button>
@@ -51,84 +43,80 @@
     </div>
 
     <!-- Active filters info -->
-    <div v-if="hasFilters" class="mb-4 text-zinc-600 dark:text-zinc-400">
+    <div v-if="hasFilters" class="active-filters">
       <span v-if="searchQuery">
         Search results for:
-        <span class="font-bold">{{ searchQuery }}</span>
+        <strong>{{ searchQuery }}</strong>
       </span>
       <span v-if="searchQuery && selectedCategory"> | </span>
       <span v-if="selectedCategory">
         Category:
-        <span class="font-bold">{{ getCategoryName(selectedCategory) }}</span>
+        <strong>{{ getCategoryName(selectedCategory) }}</strong>
       </span>
       <span v-if="listings.length === 0"> - No results found</span>
       <span v-else> - {{ listings.length }} results found</span>
     </div>
 
     <!-- Loading indicator -->
-    <div v-if="isLoading" class="flex justify-center items-center py-12">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"
-      ></div>
+    <div v-if="isLoading" class="loading-container">
+      <div class="spinner"></div>
     </div>
 
     <!-- Listings grid -->
-    <div
-      v-else-if="listings.length > 0"
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-    >
-      <div
-        v-for="listing in listings"
-        :key="listing.id"
-        class="bg-white dark:bg-zinc-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
-      >
+    <div v-else-if="listings.length > 0" class="listings-grid">
+      <div v-for="listing in listings" :key="listing.id" class="listing-card">
         <!-- Listing card content -->
-        <router-link :to="`/listing/${listing.id}`" class="block">
+        <router-link :to="`/listing/${listing.id}`" class="listing-link">
           <!-- Image if available -->
           <img
             v-if="listing.image_url"
             :src="listing.image_url"
             :alt="listing.tradeWhat"
-            class="w-full h-48 object-cover"
+            class="listing-image"
           />
+          <div v-else class="listing-image-placeholder">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
 
-          <div class="p-4">
+          <div class="listing-content">
             <!-- Status badge -->
-            <div v-if="listing.status" class="mb-2">
-              <span
-                class="px-2 py-1 text-xs font-medium rounded-full"
-                :class="getStatusClasses(listing.status)"
-              >
-                {{ getStatusText(listing.status) }}
-              </span>
+            <div v-if="listing.status" class="status-badge" :class="listing.status">
+              {{ getStatusText(listing.status) }}
             </div>
 
             <!-- Owner info -->
-            <div class="flex items-center mb-3">
-              <div
-                class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 font-bold text-xs"
-              >
+            <div class="listing-owner">
+              <div class="owner-avatar">
                 {{ getInitials(listing.owner?.name || '') }}
               </div>
-              <span class="ml-2 text-sm text-zinc-600 dark:text-zinc-400">{{
-                listing.owner?.name
-              }}</span>
+              <span class="owner-name">{{ listing.owner?.name }}</span>
 
               <!-- Category -->
-              <span
-                v-if="listing.category_id"
-                class="ml-auto text-xs px-2 py-1 bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-md"
-              >
+              <span v-if="listing.category_id" class="category-tag">
                 {{ getCategoryName(listing.category_id) }}
               </span>
             </div>
 
             <!-- Listing details -->
-            <h3 class="text-lg font-semibold mb-1 text-zinc-800 dark:text-white">
+            <h3 class="listing-title">
               {{ listing.tradeWhat }}
             </h3>
-            <div class="text-sm text-zinc-600 dark:text-zinc-400">
-              for <span class="font-medium text-orange-600">{{ listing.forWhat }}</span>
+            <div class="listing-subtext">
+              for <span class="for-what">{{ listing.forWhat }}</span>
             </div>
           </div>
         </router-link>
@@ -136,31 +124,46 @@
     </div>
 
     <!-- Empty state -->
-    <div v-else class="text-center py-12 bg-white dark:bg-zinc-800 rounded-xl shadow-md">
+    <div v-else class="empty-state">
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="h-16 w-16 mx-auto text-zinc-400"
-        fill="none"
+        width="64"
+        height="64"
         viewBox="0 0 24 24"
+        fill="none"
         stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
       >
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
       </svg>
-      <h3 class="mt-4 text-lg font-medium text-zinc-800 dark:text-white">No listings found</h3>
-      <p class="mt-2 text-zinc-600 dark:text-zinc-400">
-        Try different search terms or clear your filters
-      </p>
+      <h3>No listings found</h3>
+      <p>Try different search terms or clear your filters</p>
     </div>
 
     <!-- Load more button -->
-    <div v-if="hasMoreListings" class="mt-8 text-center">
+    <div v-if="hasMoreListings" class="load-more">
       <button
         @click="loadMoreListings"
-        class="px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-white rounded-md"
+        class="btn btn-secondary load-more-btn"
         :disabled="isLoadingMore"
       >
-        <span v-if="isLoadingMore">Loading...</span>
-        <span v-else>Load more</span>
+        <span v-if="isLoadingMore" class="loading-spinner">
+          <svg class="spinner-icon" viewBox="0 0 24 24">
+            <circle
+              class="spinner-circle"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              fill="none"
+              stroke-width="4"
+            ></circle>
+          </svg>
+          Loading...
+        </span>
+        <span v-else>Load more listings</span>
       </button>
     </div>
   </div>
@@ -327,13 +330,338 @@ function getStatusText(status) {
   }
   return statusMap[status] || 'Unknown'
 }
-
-function getStatusClasses(status) {
-  const classMap = {
-    available: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    pending: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  }
-  return classMap[status] || 'bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-300'
-}
 </script>
+
+<style scoped>
+.listings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-title {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-main);
+}
+
+.search-card {
+  background-color: var(--color-background);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-input-container {
+  flex: 3 1 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+}
+
+.category-filter {
+  flex: 1 1 200px;
+}
+
+.category-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+}
+
+.search-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-btn {
+  background-color: var(--color-primary);
+  color: white;
+  white-space: nowrap;
+}
+
+.clear-btn {
+  background-color: #52525b;
+  white-space: nowrap;
+}
+
+.active-filters {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 0.375rem;
+  background-color: #f4f4f5;
+  color: var(--color-text-secondary);
+}
+
+.dark-theme .active-filters {
+  background-color: #27272a;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 0.25rem solid rgba(234, 88, 12, 0.1);
+  border-top-color: var(--color-primary);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.listing-card {
+  background-color: var(--color-background);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px var(--color-shadow);
+  overflow: hidden;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.listing-card:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 6px 12px var(--color-shadow);
+}
+
+.listing-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.listing-image,
+.listing-image-placeholder {
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+}
+
+.listing-image-placeholder {
+  background-color: #e4e4e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a1a1aa;
+}
+
+.dark-theme .listing-image-placeholder {
+  background-color: #3f3f46;
+  color: #71717a;
+}
+
+.listing-content {
+  padding: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+}
+
+.available {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.pending {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.completed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.dark-theme .available {
+  background-color: rgba(6, 95, 70, 0.2);
+  color: #34d399;
+}
+
+.dark-theme .pending {
+  background-color: rgba(154, 52, 18, 0.2);
+  color: #fb923c;
+}
+
+.dark-theme .completed {
+  background-color: rgba(30, 64, 175, 0.2);
+  color: #60a5fa;
+}
+
+.listing-owner {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.owner-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #ffedd5;
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+}
+
+.dark-theme .owner-avatar {
+  background-color: rgba(194, 65, 12, 0.2);
+  color: #fb923c;
+}
+
+.owner-name {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-tag {
+  margin-left: auto;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f4f4f5;
+  color: var(--color-text-secondary);
+  border-radius: 0.25rem;
+}
+
+.dark-theme .category-tag {
+  background-color: #27272a;
+  color: #d4d4d8;
+}
+
+.listing-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--color-text-main);
+}
+
+.listing-subtext {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.for-what {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--color-background);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.empty-state svg {
+  margin: 0 auto 1rem;
+  color: #a1a1aa;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-main);
+}
+
+.empty-state p {
+  color: var(--color-text-secondary);
+}
+
+.load-more {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.load-more-btn {
+  padding: 0.75rem 1.5rem;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.spinner-circle {
+  opacity: 0.25;
+}
+
+.spinner-circle:nth-child(1) {
+  opacity: 0.75;
+  stroke-dasharray: 62.83;
+  stroke-dashoffset: 62.83;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 62.83;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -62.83;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-form {
+    flex-direction: column;
+  }
+
+  .search-buttons {
+    justify-content: flex-end;
+  }
+
+  .listings-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+</style>

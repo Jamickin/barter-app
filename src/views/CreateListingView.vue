@@ -17,7 +17,7 @@
             v-model="listing.tradeWhat"
             type="text"
             required
-            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
+            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus: focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
             placeholder="e.g. iPhone 13 Pro"
           />
           <p v-if="errors.tradeWhat" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -38,7 +38,7 @@
             v-model="listing.forWhat"
             type="text"
             required
-            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
+            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus: focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
             placeholder="e.g. iPad Pro or MacBook"
           />
           <p v-if="errors.forWhat" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -58,7 +58,7 @@
             id="category"
             v-model="listing.category_id"
             required
-            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
+            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus: focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
           >
             <option value="" disabled>Select a category</option>
             <option v-for="category in categories" :key="category.id" :value="category.id">
@@ -82,7 +82,7 @@
             id="description"
             v-model="listing.description"
             rows="4"
-            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
+            class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus: focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
             placeholder="Describe your item and what you're looking for..."
           ></textarea>
         </div>
@@ -122,7 +122,7 @@
               <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
                 <label
                   for="file-upload"
-                  class="relative cursor-pointer bg-white dark:bg-zinc-700 rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500"
+                  class="relative cursor-pointer bg-white dark:bg-zinc-700 rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:"
                 >
                   <span>Upload a file</span>
                   <input
@@ -161,7 +161,7 @@
           </router-link>
           <button
             type="submit"
-            class="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus: focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="isSubmitting"
           >
             <span v-if="isSubmitting">Creating...</span>
