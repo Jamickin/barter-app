@@ -1,602 +1,186 @@
 <template>
-  <div>
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="container">
-        <div class="hero-content">
-          <h1>Trade What You Have For What You Need</h1>
-          <p>No money needed. Just good old-fashioned bartering.</p>
-          <div class="hero-buttons">
-            <router-link to="/listings" class="btn btn-white"> Browse Listings </router-link>
-            <router-link v-if="isAuthenticated" to="/create-listing" class="btn btn-dark">
-              Create Listing
-            </router-link>
-            <router-link v-else to="/register" class="btn btn-dark"> Sign Up Free </router-link>
-          </div>
+  <div class="flex flex-col gap-10 md:gap-14">
+    <!-- Hero: one job, get people searching -->
+    <section class="-mx-4 md:mx-0 -mt-4 md:mt-0 overflow-hidden bg-gradient-to-br from-orange-600 via-orange-500 to-amber-400 px-4 pb-8 pt-7 text-white md:rounded-3xl md:px-12 md:py-14">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-orange-100">{{ $t('home.kicker', { country: $t(`country.${prefs.country}`) }) }}</p>
+        <h1 class="mt-2 text-[28px] leading-[1.15] font-extrabold md:text-5xl">{{ $t('home.title') }}</h1>
+        <p class="mt-3 text-[15px] text-orange-50 md:text-lg">{{ $t('home.subtitle') }}</p>
+
+        <form class="mt-6 flex gap-2 rounded-2xl bg-white p-1.5 shadow-xl shadow-orange-900/20" role="search" @submit.prevent="search()">
+          <input
+            v-model.trim="q"
+            type="search"
+            :placeholder="$t('home.searchPlaceholder')"
+            :aria-label="$t('home.searchPlaceholder')"
+            class="!min-h-11 !border-0 !shadow-none !bg-transparent text-zinc-900"
+          />
+          <button type="submit" class="btn !min-h-11 shrink-0">{{ $t('common.search') }}</button>
+        </form>
+        <div class="mt-3 flex flex-wrap gap-2 text-sm">
+          <span class="text-orange-100">{{ $t('home.popular') }}</span>
+          <button v-for="s in popular" :key="s" type="button" class="rounded-full bg-white/15 px-3 py-1 font-medium hover:bg-white/25" @click="search(s)">{{ s }}</button>
+        </div>
+
+        <button v-if="isDemo && !isAuthenticated" type="button" class="mt-6 inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4" @click="tryDemo">
+          {{ $t('home.tryDemo') }} →
+        </button>
+      </div>
+    </section>
+
+    <!-- Trust strip -->
+    <section class="grid grid-cols-3 gap-2 text-center md:gap-4">
+      <div v-for="p in trust" :key="p.k" class="flex flex-col items-center gap-1.5 px-1">
+        <span class="grid h-10 w-10 place-items-center rounded-full bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300">
+          <TabIcon :name="p.icon" class="h-5 w-5" />
+        </span>
+        <span class="text-[13px] font-semibold leading-tight">{{ $t(`home.trust.${p.k}`) }}</span>
+        <span class="hidden text-xs text-[var(--color-text-light)] md:block">{{ $t(`home.trust.${p.k}Sub`) }}</span>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section>
+      <h2 class="section-title">{{ $t('home.categories') }}</h2>
+      <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1 no-scrollbar md:mx-0 md:grid md:grid-cols-6 md:px-0">
+        <router-link
+          v-for="c in categories"
+          :key="c.id"
+          :to="{ path: '/listings', query: { category: c.id } }"
+          class="flex w-[76px] shrink-0 flex-col items-center gap-2 md:w-auto"
+        >
+          <span class="grid h-16 w-16 place-items-center rounded-2xl bg-[var(--color-background)] text-3xl ring-1 ring-[var(--color-border)] transition hover:ring-[var(--color-primary)]">{{ c.icon }}</span>
+          <span class="text-center text-xs font-medium leading-tight text-[var(--color-text-secondary)]">{{ categoryName(c) }}</span>
+        </router-link>
+      </div>
+    </section>
+
+    <!-- Boosted -->
+    <section v-if="boosted.length">
+      <div class="mb-3 flex items-end justify-between">
+        <h2 class="section-title !mb-0 flex items-center gap-1.5"><TabIcon name="bolt" class="h-5 w-5 text-amber-500" />{{ $t('home.featured') }}</h2>
+        <router-link to="/listings" class="text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
+      </div>
+      <div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 no-scrollbar md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:px-0">
+        <div v-for="l in boosted" :key="l.id" class="w-[44%] shrink-0 snap-start md:w-auto">
+          <ListingCard :listing="l" :categories="categories" list-name="home_featured" />
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- How It Works -->
-    <div class="how-it-works">
-      <div class="container">
-        <h2 class="section-title">How Bartering Works</h2>
-        <div class="steps">
-          <!-- Step 1 -->
-          <div class="step">
-            <div class="step-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <h3>List Your Item</h3>
-            <p>Create a listing for what you have and what you want in exchange.</p>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="step">
-            <div class="step-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-            </div>
-            <h3>Connect & Chat</h3>
-            <p>Message potential traders and negotiate your exchange.</p>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="step">
-            <div class="step-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-            </div>
-            <h3>Make the Trade</h3>
-            <p>Meet up safely and exchange your items person-to-person.</p>
-          </div>
-        </div>
+    <!-- Latest -->
+    <section>
+      <div class="mb-3 flex items-end justify-between">
+        <h2 class="section-title !mb-0">{{ $t('home.latest') }}</h2>
+        <router-link to="/listings" class="text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
       </div>
-    </div>
-
-    <!-- Featured Listings -->
-    <div class="featured-listings">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Featured Listings</h2>
-          <router-link to="/listings" class="view-all"> View All → </router-link>
-        </div>
-
-        <!-- Loading state -->
-        <div v-if="isLoading" class="loading">
-          <div class="spinner"></div>
-        </div>
-
-        <!-- Listings grid -->
-        <div v-else-if="featuredListings.length > 0" class="listings-grid">
-          <div v-for="listing in featuredListings" :key="listing.id" class="listing-card">
-            <router-link :to="`/listing/${listing.id}`" class="listing-link">
-              <!-- Image if available -->
-              <img
-                v-if="listing.image_url"
-                :src="listing.image_url"
-                :alt="listing.tradeWhat"
-                class="listing-image"
-              />
-              <div v-else class="listing-image-placeholder">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-
-              <div class="listing-content">
-                <!-- Status badge -->
-                <div v-if="listing.status" class="status-badge" :class="listing.status">
-                  {{ getStatusText(listing.status) }}
-                </div>
-
-                <!-- Owner info -->
-                <div class="listing-owner">
-                  <div class="owner-avatar">
-                    {{ getInitials(listing.owner?.name || '') }}
-                  </div>
-                  <span class="owner-name">{{ listing.owner?.name }}</span>
-                </div>
-
-                <!-- Listing details -->
-                <h3 class="listing-title">
-                  {{ listing.tradeWhat }}
-                </h3>
-                <div class="listing-subtext">
-                  for <span class="for-what">{{ listing.forWhat }}</span>
-                </div>
-              </div>
-            </router-link>
-          </div>
-        </div>
-
-        <!-- Empty state -->
-        <div v-else class="empty-state">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="64"
-            height="64"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-          </svg>
-          <h3>No listings yet</h3>
-          <p>Be the first to create a listing!</p>
-          <div class="empty-action">
-            <router-link to="/create-listing" class="btn"> Create Listing </router-link>
-          </div>
-        </div>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-4 md:gap-x-5">
+        <template v-if="isLoading">
+          <div v-for="i in 4" :key="i"><div class="skeleton aspect-square !rounded-2xl"></div><div class="skeleton mt-3 h-4 w-4/5"></div><div class="skeleton mt-2 h-3 w-1/2"></div></div>
+        </template>
+        <ListingCard v-for="l in latest" v-else :key="l.id" :listing="l" :categories="categories" list-name="home_latest" />
       </div>
-    </div>
+      <p v-if="!isLoading && !latest.length" class="card p-8 text-center text-[var(--color-text-light)]">{{ $t('home.empty') }}</p>
+    </section>
 
-    <!-- CTA Section -->
-    <div class="cta-section">
-      <div class="container">
-        <div class="cta-content">
-          <h2>Ready to Start Bartering?</h2>
-          <p>Join thousands of people trading goods and services without spending a dime.</p>
-          <router-link to="/register" class="btn"> Create Your Account </router-link>
-        </div>
+    <!-- How it works -->
+    <section>
+      <h2 class="section-title">{{ $t('home.howTitle') }}</h2>
+      <ol class="grid gap-3 md:grid-cols-3 md:gap-5">
+        <li v-for="(s, i) in steps" :key="s" class="card flex gap-4 p-4 md:flex-col md:p-6">
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--color-text-main)] text-sm font-bold text-[var(--color-background)]">{{ i + 1 }}</span>
+          <div>
+            <h3 class="font-semibold">{{ $t(`home.steps.${s}.title`) }}</h3>
+            <p class="mt-1 text-sm text-[var(--color-text-secondary)]">{{ $t(`home.steps.${s}.text`) }}</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Seller CTA -->
+    <section class="rounded-3xl bg-zinc-900 px-6 py-8 text-white md:flex md:items-center md:justify-between md:px-10 dark:bg-zinc-800">
+      <div>
+        <h2 class="text-xl font-bold md:text-2xl">{{ $t('home.sellTitle') }}</h2>
+        <p class="mt-1 text-zinc-300">{{ $t('home.sellText') }}</p>
       </div>
-    </div>
+      <router-link to="/create-listing" class="btn mt-5 w-full md:mt-0 md:w-auto">{{ $t('home.sellCta') }}</router-link>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { auth, db } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore'
+import ListingCard from '../components/ListingCard.vue'
+import TabIcon from '../components/TabIcon.vue'
+import { prefs, t } from '../i18n/index.js'
+import { categoryName, isBoosted } from '../lib/regions.js'
 
-// State
+const router = useRouter()
+const isDemo = __DEMO__
 const isLoading = ref(true)
-const featuredListings = ref([])
-const isAuthenticated = computed(() => !!auth.currentUser)
+const listings = ref([])
+const categories = ref([])
+const q = ref('')
+const isAuthenticated = ref(!!auth.currentUser)
+const stop = onAuthStateChanged(auth, (u) => (isAuthenticated.value = !!u))
+onUnmounted(stop)
 
-// Get featured listings
-onMounted(async () => {
+const trust = [
+  { k: 'free', icon: 'check' },
+  { k: 'local', icon: 'pin' },
+  { k: 'safe', icon: 'shield' },
+]
+const steps = ['list', 'offer', 'meet']
+const popular = computed(() => t('home.popularTerms').split(',').map((s) => s.trim()))
+
+const boosted = computed(() => listings.value.filter((l) => isBoosted(l)).slice(0, 4))
+const latest = computed(() => listings.value.filter((l) => !isBoosted(l)).slice(0, 8))
+
+function search(term = q.value) {
+  router.push({ path: '/listings', query: term ? { search: term } : {} })
+}
+
+async function tryDemo() {
+  const { demoSignInAs } = await import('../demo/auth.js')
+  const { DEMO_USER_ID } = await import('../demo/seed.js')
+  demoSignInAs(DEMO_USER_ID)
+  router.push({ path: '/listings', query: { message: t('demo.welcome', { name: 'Tendai' }) } })
+}
+
+async function load() {
+  isLoading.value = true
   try {
-    // Query for available listings, with images first, limited to 6
-    const listingsQuery = query(
-      collection(db, 'listings'),
-      where('status', '==', 'available'),
-      orderBy('created_at', 'desc'),
-      limit(6),
-    )
-
-    const listingsSnapshot = await getDocs(listingsQuery)
-
-    // Process listings
-    const listingsData = []
-    for (const doc of listingsSnapshot.docs) {
-      const listingData = doc.data()
-
-      // Add to listings list
-      listingsData.push({
-        id: doc.id,
-        ...listingData,
-        created_at: listingData.created_at?.toDate() || new Date(),
-        updated_at: listingData.updated_at?.toDate() || new Date(),
-      })
-    }
-
-    // Sort to prioritize listings with images
-    featuredListings.value = listingsData.sort((a, b) => {
-      if (a.image_url && !b.image_url) return -1
-      if (!a.image_url && b.image_url) return 1
-      return 0
-    })
-  } catch (error) {
-    console.error('Error fetching featured listings:', error)
+    const [cats, list] = await Promise.all([
+      getDocs(collection(db, 'categories')),
+      getDocs(query(collection(db, 'listings'), where('country', '==', prefs.country), where('status', '==', 'available'), orderBy('created_at', 'desc'), limit(24))),
+    ])
+    categories.value = cats.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order || 99) - (b.order || 99))
+    listings.value = list.docs.map((d) => ({ id: d.id, ...d.data() }))
+  } catch (e) {
+    console.error('Error loading home page:', e)
   } finally {
     isLoading.value = false
   }
-})
-
-// Helper functions
-const getInitials = (name) => {
-  if (!name) return '?'
-  const parts = name.split(' ')
-  return (parts[0]?.[0] || '') + (parts[1]?.[0] || '')
 }
-
-const getStatusText = (status) => {
-  const statusMap = {
-    available: 'Available',
-    pending: 'Pending',
-    completed: 'Completed',
-  }
-  return statusMap[status] || 'Unknown'
-}
+onMounted(load)
+watch(() => prefs.country, load)
 </script>
 
 <style scoped>
-/* Hero Section */
-.hero {
-  background: linear-gradient(to right, var(--color-primary), #fb923c);
-  color: white;
-  padding: 4rem 0;
-  text-align: center;
-}
-
-.hero-content {
-  max-width: 50rem;
-  margin: 0 auto;
-}
-
-.hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.hero p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.hero-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn-white {
-  background-color: white;
-  color: var(--color-primary);
-}
-
-.btn-white:hover {
-  background-color: #f8fafc;
-}
-
-.btn-dark {
-  background-color: var(--color-primary-dark);
-  color: white;
-}
-
-.btn-dark:hover {
-  background-color: var(--color-primary);
-}
-
-/* How It Works Section */
-.how-it-works {
-  padding: 4rem 0;
-  background-color: var(--color-background);
-}
-
 .section-title {
-  text-align: center;
-  margin-bottom: 3rem;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text-main);
-}
-
-.steps {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-}
-
-.step {
-  flex: 1;
-  min-width: 250px;
-  text-align: center;
-  padding: 1rem;
-}
-
-.step-icon {
-  width: 4rem;
-  height: 4rem;
-  background-color: #fff7ed;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  color: var(--color-primary);
-}
-
-.step h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.step p {
-  color: var(--color-text-secondary);
-}
-
-/* Featured Listings Section */
-.featured-listings {
-  padding: 4rem 0;
-  background-color: #f9fafb;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.view-all {
-  color: var(--color-primary);
-  font-weight: 500;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 3rem 0;
-}
-
-.spinner {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 0.25rem solid rgba(234, 88, 12, 0.1);
-  border-top-color: var(--color-primary);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.listings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.listing-card {
-  background-color: var(--color-background);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px var(--color-shadow);
-  overflow: hidden;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
-}
-
-.listing-card:hover {
-  transform: translateY(-0.25rem);
-  box-shadow: 0 10px 15px var(--color-shadow);
-}
-
-.listing-link {
-  display: block;
-  color: inherit;
-  text-decoration: none;
-}
-
-.listing-image,
-.listing-image-placeholder {
-  width: 100%;
-  height: 12rem;
-  object-fit: cover;
-}
-
-.listing-image-placeholder {
-  background-color: #e4e4e7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #a1a1aa;
-}
-
-.listing-content {
-  padding: 1rem;
-}
-
-.status-badge {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  margin-bottom: 0.5rem;
-}
-
-.available {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.pending {
-  background-color: #ffedd5;
-  color: #9a3412;
-}
-
-.completed {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.listing-owner {
-  display: flex;
-  align-items: center;
   margin-bottom: 0.75rem;
-}
-
-.owner-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: #ffedd5;
-  color: var(--color-primary-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.75rem;
-  margin-right: 0.5rem;
-}
-
-.owner-name {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.listing-title {
   font-size: 1.125rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: var(--color-text-main);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
-
-.listing-subtext {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.for-what {
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  background-color: var(--color-background);
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px var(--color-shadow);
-}
-
-.empty-state svg {
-  margin: 0 auto 1rem;
-  color: #a1a1aa;
-}
-
-.empty-state h3 {
-  font-size: 1.25rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-  color: var(--color-text-secondary);
-  margin-bottom: 1.5rem;
-}
-
-/* CTA Section */
-.cta-section {
-  padding: 4rem 0;
-  background-color: #18181b;
-  color: white;
-  text-align: center;
-}
-
-.cta-content {
-  max-width: 50rem;
-  margin: 0 auto;
-}
-
-.cta-section h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.cta-section p {
-  font-size: 1.125rem;
-  margin-bottom: 2rem;
-  color: #d4d4d8;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2rem;
-  }
-
-  .steps {
-    flex-direction: column;
-  }
-
-  .step {
-    max-width: 100%;
-  }
-
-  .listings-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
-}
-
-@media (max-width: 576px) {
-  .hero {
-    padding: 3rem 0;
-  }
-
-  .hero h1 {
-    font-size: 1.75rem;
-  }
-
-  .hero p {
-    font-size: 1rem;
-  }
-
+@media (min-width: 768px) {
   .section-title {
-    font-size: 1.5rem;
+    font-size: 1.375rem;
+    margin-bottom: 1rem;
   }
 }
 </style>

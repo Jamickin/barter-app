@@ -28,3 +28,11 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Local Netlify folder
+.netlify
+
+# Secrets: Firebase keys live in .env (set them in Netlify env vars for real deploys)
+.env
+.env.*
+!.env.example

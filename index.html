@@ -2,23 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barter | Swap goods, food, livestock and skills</title>
     <meta
       name="description"
-      content="Barter - Trade what you have for what you need. No money needed."
+      content="Trade what you have for what you need. Swap goods, food, livestock and skills with people near you in Zimbabwe and South Africa. Free to list. No cash needed, or add a little to balance the deal."
     />
     <meta name="theme-color" content="#ea580c" />
-    <title>Barter | Trade What You Have</title>
-    <!-- Open Graph / Social Media Meta Tags -->
-    <meta property="og:title" content="Barter | Trade What You Have" />
-    <meta
-      property="og:description"
-      content="Find local trades and exchange goods without spending money."
-    />
+    <link rel="canonical" href="https://barter-zw.netlify.app/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Barter" />
+
+    <!-- Link previews (WhatsApp, Facebook, X) -->
+    <meta property="og:site_name" content="Barter" />
+    <meta property="og:title" content="Barter Zimbabwe: trade what you have for what you need" />
+    <meta property="og:description" content="Swap goods, food, livestock and skills with people near you. No cash needed." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://barterapp.com" />
-    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:url" content="https://barter-zw.netlify.app/" />
+    <meta property="og:image" content="https://barter-zw.netlify.app/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_ZW" />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Preload dark mode script to prevent flash -->
     <script>
@@ -32,9 +40,9 @@
           storedTheme === 'dark' ||
           (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
         ) {
-          document.documentElement.classList.add('dark')
+          document.documentElement.classList.add('dark-theme')
         } else {
-          document.documentElement.classList.remove('dark')
+          document.documentElement.classList.remove('dark-theme')
         }
       })()
     </script>

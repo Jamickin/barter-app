@@ -1,404 +1,140 @@
 <template>
-  <div class="register-container">
-    <div class="register-card">
-      <h1 class="card-title">Create Account</h1>
+  <div class="mx-auto max-w-sm py-2 md:py-8">
+    <h1 class="text-2xl font-extrabold tracking-tight md:text-3xl">{{ $t('auth.joinTitle') }}</h1>
+    <p class="mt-1 text-[var(--color-text-secondary)]">{{ $t('auth.joinSub') }}</p>
 
-      <form @submit.prevent="handleRegister" class="register-form">
-        <!-- Name Field -->
-        <div class="form-group">
-          <label for="name">Full Name</label>
-          <input id="name" v-model="name" type="text" required placeholder="John Doe" />
-          <p v-if="nameError" class="form-error">
-            {{ nameError }}
-          </p>
-        </div>
-
-        <!-- Email Field -->
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" v-model="email" type="email" required placeholder="your@email.com" />
-          <p v-if="emailError" class="form-error">
-            {{ emailError }}
-          </p>
-        </div>
-
-        <!-- Password Field -->
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input id="password" v-model="password" type="password" required placeholder="********" />
-          <p v-if="passwordError" class="form-error">
-            {{ passwordError }}
-          </p>
-        </div>
-
-        <!-- Confirm Password Field -->
-        <div class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <input
-            id="confirmPassword"
-            v-model="confirmPassword"
-            type="password"
-            required
-            placeholder="********"
-          />
-          <p v-if="confirmPasswordError" class="form-error">
-            {{ confirmPasswordError }}
-          </p>
-        </div>
-
-        <!-- Error Message -->
-        <div v-if="authError" class="auth-error">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="error-icon"
-          >
-            <path
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          {{ authError }}
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn submit-btn" :disabled="isLoading">
-          <span v-if="isLoading" class="loading-spinner">
-            <svg class="spinner-icon" viewBox="0 0 24 24">
-              <circle
-                class="spinner-circle"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                fill="none"
-                stroke-width="4"
-              ></circle>
-            </svg>
-            Creating account...
-          </span>
-          <span v-else>Create Account</span>
-        </button>
-      </form>
-
-      <!-- Agreement Text -->
-      <div class="agreement-text">
-        By creating an account, you agree to our
-        <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    <form class="mt-6 grid gap-4" novalidate @submit.prevent="handleRegister">
+      <label>
+        <span class="label">{{ $t('auth.name') }}</span>
+        <input v-model="name" type="text" autocomplete="name" :placeholder="$t('auth.namePlaceholder')" required />
+        <span v-if="errors.name" class="field-error block">{{ errors.name }}</span>
+      </label>
+      <div class="grid grid-cols-2 gap-3">
+        <label>
+          <span class="label">{{ $t('prefs.country') }}</span>
+          <select v-model="countryCode" @change="town = ''">
+            <option v-for="c in COUNTRY_CODES" :key="c" :value="c">{{ $t(`country.${c}`) }}</option>
+          </select>
+        </label>
+        <label>
+          <span class="label">{{ $t('form.town') }}</span>
+          <select v-model="town" required>
+            <option value="" disabled>{{ $t('form.chooseTown') }}</option>
+            <option v-for="tn in country(countryCode).towns" :key="tn" :value="tn">{{ tn }}</option>
+          </select>
+        </label>
       </div>
+      <span v-if="errors.town" class="field-error -mt-2">{{ errors.town }}</span>
+      <label>
+        <span class="label">{{ $t('auth.whatsapp') }} <span class="font-normal text-[var(--color-text-light)]">({{ $t('common.optional') }})</span></span>
+        <input v-model="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="077 123 4567" />
+        <span class="hint block">{{ $t('auth.whatsappHint') }}</span>
+      </label>
+      <label>
+        <span class="label">{{ $t('auth.email') }}</span>
+        <input v-model.trim="email" type="email" autocomplete="email" inputmode="email" required />
+        <span v-if="errors.email" class="field-error block">{{ errors.email }}</span>
+      </label>
+      <label>
+        <span class="label">{{ $t('auth.password') }}</span>
+        <span class="relative block">
+          <input v-model="password" :type="show ? 'text' : 'password'" autocomplete="new-password" class="!pr-16" required />
+          <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 px-2 text-sm font-semibold text-[var(--color-text-secondary)]" @click="show = !show">{{ show ? $t('auth.hide') : $t('auth.show') }}</button>
+        </span>
+        <span class="hint block">{{ $t('auth.passwordHint') }}</span>
+        <span v-if="errors.password" class="field-error block">{{ errors.password }}</span>
+      </label>
+      <p v-if="isDemo" class="rounded-xl bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">{{ $t('auth.demoPasswordNote') }}</p>
+      <label class="flex items-start gap-3 text-sm">
+        <input v-model="agree" type="checkbox" class="mt-0.5" />
+        <span>
+          {{ $t('auth.agreePrefix') }}
+          <router-link to="/terms" target="_blank" class="font-medium underline">{{ $t('footer.terms') }}</router-link>,
+          <router-link to="/privacy" target="_blank" class="font-medium underline">{{ $t('footer.privacy') }}</router-link>
+          {{ $t('auth.and') }}
+          <router-link to="/guidelines" target="_blank" class="font-medium underline">{{ $t('footer.guidelines') }}</router-link>.
+        </span>
+      </label>
+      <span v-if="errors.agree" class="field-error -mt-2">{{ errors.agree }}</span>
+      <p v-if="authError" class="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300" role="alert">{{ authError }}</p>
+      <button type="submit" class="btn btn-block" :disabled="isLoading">{{ isLoading ? $t('auth.creating') : $t('auth.create') }}</button>
+    </form>
 
-      <!-- Login Link -->
-      <div class="login-link">
-        <p>
-          Already have an account?
-          <router-link to="/login">Sign in</router-link>
-        </p>
-      </div>
-    </div>
+    <p class="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
+      {{ $t('auth.haveAccount') }} <router-link :to="{ path: '/login', query: $route.query }" class="font-semibold text-[var(--color-primary)]">{{ $t('auth.signIn') }}</router-link>
+    </p>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '../firebase'
+import { COUNTRY_CODES, country, normalizePhone } from '../lib/regions.js'
+import { prefs, t } from '../i18n/index.js'
+import { track } from '../lib/track.js'
 
 const router = useRouter()
-
-// Form data
+const route = useRoute()
+const isDemo = __DEMO__
 const name = ref('')
+const countryCode = ref(prefs.country)
+const town = ref('')
+const whatsapp = ref('')
 const email = ref('')
 const password = ref('')
-const confirmPassword = ref('')
-
-// Form validation
-const nameError = ref('')
-const emailError = ref('')
-const passwordError = ref('')
-const confirmPasswordError = ref('')
+const show = ref(false)
+const agree = ref(false)
+const errors = ref({})
 const authError = ref('')
 const isLoading = ref(false)
 
-// Validate form
-const validateForm = () => {
-  let isValid = true
-  nameError.value = ''
-  emailError.value = ''
-  passwordError.value = ''
-  confirmPasswordError.value = ''
-
-  // Validate name
-  if (!name.value.trim()) {
-    nameError.value = 'Name is required'
-    isValid = false
-  }
-
-  // Validate email
-  if (!email.value) {
-    emailError.value = 'Email is required'
-    isValid = false
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    emailError.value = 'Please enter a valid email address'
-    isValid = false
-  }
-
-  // Validate password
-  if (!password.value) {
-    passwordError.value = 'Password is required'
-    isValid = false
-  } else if (password.value.length < 6) {
-    passwordError.value = 'Password must be at least 6 characters'
-    isValid = false
-  }
-
-  // Validate confirm password
-  if (password.value !== confirmPassword.value) {
-    confirmPasswordError.value = 'Passwords do not match'
-    isValid = false
-  }
-
-  return isValid
+function validate() {
+  const e = {}
+  if (!name.value.trim()) e.name = t('auth.errName')
+  if (!town.value) e.town = t('auth.errTown')
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) e.email = t('auth.errEmail')
+  if (password.value.length < 6) e.password = t('auth.errPassword')
+  if (!agree.value) e.agree = t('auth.errAgree')
+  errors.value = e
+  return !Object.keys(e).length
 }
 
-// Handle registration
-const handleRegister = async () => {
-  if (!validateForm()) return
-
+async function handleRegister() {
+  if (!validate()) return
   isLoading.value = true
   authError.value = ''
-
   try {
-    // Create user with Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value)
-    const user = userCredential.user
-
-    // Update user profile with name
-    await updateProfile(user, {
-      displayName: name.value,
-    })
-
-    // Create user document in Firestore
+    const { user } = await createUserWithEmailAndPassword(auth, email.value, password.value)
+    await updateProfile(user, { displayName: name.value.trim() })
     await setDoc(doc(db, 'users', user.uid), {
-      name: name.value,
+      name: name.value.trim(),
       email: email.value,
+      country: countryCode.value,
+      town: town.value,
+      area: '',
+      bio: '',
+      whatsapp: normalizePhone(whatsapp.value, countryCode.value),
+      trades_completed: 0,
+      is_admin: false,
+      accepted_terms_at: serverTimestamp(),
       created_at: serverTimestamp(),
       updated_at: serverTimestamp(),
-      is_admin: false,
-      // Add other user fields as needed
     })
-
-    // Redirect to home page with success message
-    router.push({
-      path: '/listings',
-      query: { message: 'Account created successfully! Welcome to Barter.' },
-    })
+    prefs.country = countryCode.value
+    track('sign_up', { country: countryCode.value })
+    router.push({ path: route.query.redirect || '/create-listing', query: { message: t('auth.welcome') } })
   } catch (error) {
-    console.error('Registration error:', error)
-
-    // Handle Firebase auth errors
-    switch (error.code) {
-      case 'auth/email-already-in-use':
-        authError.value = 'Password is too weak'
-        break
-      default:
-        authError.value = 'An error occurred during registration. Please try again.'
-    }
+    authError.value =
+      {
+        'auth/email-already-in-use': t('auth.errInUse'),
+        'auth/invalid-email': t('auth.errEmail'),
+        'auth/weak-password': t('auth.errPassword'),
+      }[error.code] || t('auth.errGeneric')
   } finally {
     isLoading.value = false
   }
 }
 </script>
-
-<style scoped>
-.register-container {
-  max-width: 28rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-.register-card {
-  background-color: var(--color-background);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px var(--color-shadow);
-  padding: 2rem;
-  overflow: hidden;
-}
-
-.card-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: var(--color-text-main);
-}
-
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-  color: var(--color-text-main);
-}
-
-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.375rem;
-  background-color: var(--color-background);
-  color: var(--color-text-main);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-}
-
-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
-}
-
-.form-error {
-  font-size: 0.875rem;
-  color: var(--color-error);
-  margin-top: 0.25rem;
-}
-
-.auth-error {
-  padding: 1rem;
-  border-radius: 0.375rem;
-  background-color: #fee2e2;
-  color: #b91c1c;
-  display: flex;
-  align-items: flex-start;
-}
-
-.dark-theme .auth-error {
-  background-color: rgba(185, 28, 28, 0.2);
-  color: #f87171;
-}
-
-.error-icon {
-  margin-right: 0.5rem;
-  flex-shrink: 0;
-  margin-top: 0.125rem;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-}
-
-.submit-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.loading-spinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.spinner-icon {
-  animation: spin 1s linear infinite;
-  margin-right: 0.5rem;
-  width: 1rem;
-  height: 1rem;
-}
-
-.spinner-circle {
-  opacity: 0.25;
-}
-
-.spinner-circle:nth-child(1) {
-  opacity: 0.75;
-  stroke-dasharray: 62.83;
-  stroke-dashoffset: 62.83;
-  animation: dash 1.5s ease-in-out infinite;
-}
-
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes dash {
-  0% {
-    stroke-dashoffset: 62.83;
-  }
-  50% {
-    stroke-dashoffset: 0;
-  }
-  100% {
-    stroke-dashoffset: -62.83;
-  }
-}
-
-.agreement-text {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-}
-
-.agreement-text a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-.agreement-text a:hover {
-  text-decoration: underline;
-}
-
-.login-link {
-  margin-top: 2rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
-}
-
-.login-link a {
-  font-weight: 600;
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.login-link a:hover {
-  color: var(--color-primary-hover);
-}
-</style>
-= 'This email is already in use' break case 'auth/invalid-email': authError.value = 'Invalid email
-address' break case 'auth/weak-password': authError.value

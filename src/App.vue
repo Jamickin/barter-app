@@ -1,342 +1,243 @@
 <template>
-  <div class="app">
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <nav class="navbar">
-          <!-- Logo/Brand -->
-          <div class="logo">
-            <h1>
-              <router-link to="/">BARTER</router-link>
-            </h1>
-          </div>
+  <div class="min-h-dvh flex flex-col">
+    <DemoBanner v-if="DemoBanner" />
 
-          <!-- Authenticated Nav -->
-          <div v-if="user" class="nav-links">
-            <!-- Theme Toggler -->
-            <ThemeToggler />
+    <header class="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-background)]/90 backdrop-blur">
+      <div class="container flex h-14 items-center gap-2">
+        <router-link to="/" class="mr-auto text-xl font-extrabold tracking-wide text-[var(--color-primary)]" aria-label="Barter">
+          BARTER
+        </router-link>
 
-            <!-- User Profile Link -->
-            <router-link :to="`/profile/${user.uid}`" class="user-profile">
-              <div class="avatar">
-                {{ userInitials }}
-              </div>
-              <span>{{ user.displayName }}</span>
-            </router-link>
-
-            <!-- Messages Link -->
-            <router-link to="/messages" class="nav-link messages-link">
-              <span>Messages</span>
-              <span v-if="unreadMessages > 0" class="badge">
-                {{ unreadMessages > 9 ? '9+' : unreadMessages }}
-              </span>
-            </router-link>
-
-            <!-- New Listing Button -->
-            <router-link to="/create-listing" class="btn"> + New Listing </router-link>
-
-            <!-- Logout Button -->
-            <button @click="handleLogout" class="logout-btn">Logout</button>
-          </div>
-
-          <!-- Guest Nav -->
-          <div v-else class="nav-links">
-            <!-- Theme Toggler -->
-            <ThemeToggler />
-
-            <router-link to="/login" class="btn btn-secondary"> Sign In </router-link>
-            <router-link to="/register" class="btn"> Register </router-link>
-          </div>
+        <nav class="hidden md:flex items-center gap-1 mr-2">
+          <router-link to="/listings" class="btn-ghost btn-sm" active-class="!text-[var(--color-text-main)]">{{ $t('nav.browse') }}</router-link>
+          <router-link v-if="user" to="/messages" class="btn-ghost btn-sm" active-class="!text-[var(--color-text-main)]">
+            {{ $t('nav.messages') }}
+            <span v-if="unread" class="rounded-full bg-red-600 px-1.5 text-[11px] font-semibold text-white">{{ unread > 9 ? '9+' : unread }}</span>
+          </router-link>
         </nav>
+
+        <button type="button" class="btn-ghost btn-sm !px-2.5 !gap-1.5" :aria-label="$t('prefs.title')" @click="showPrefs = true">
+          <FlagIcon :code="$prefs.country" />
+          <span class="text-xs font-semibold uppercase">{{ $prefs.locale }}</span>
+        </button>
+
+        <template v-if="user">
+          <router-link to="/create-listing" class="btn btn-sm hidden md:inline-flex">{{ $t('nav.list') }}</router-link>
+          <router-link
+            :to="`/profile/${user.uid}`"
+            class="hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-800"
+            :aria-label="$t('nav.me')"
+          >
+            {{ initials }}
+          </router-link>
+        </template>
+        <template v-else>
+          <router-link to="/login" class="btn-secondary btn-sm">{{ $t('nav.signIn') }}</router-link>
+          <router-link to="/register" class="btn btn-sm hidden sm:inline-flex">{{ $t('nav.join') }}</router-link>
+        </template>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="container">
-        <!-- Flash Message -->
-        <div v-if="flashMessage" class="flash-message">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="message-icon"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          {{ flashMessage }}
+    <!-- Toast -->
+    <transition name="fade">
+      <div v-if="flash" class="fixed inset-x-0 top-16 z-40 flex justify-center px-4 pointer-events-none" role="status">
+        <div class="pointer-events-auto flex items-center gap-2 rounded-full bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg dark:bg-white dark:text-zinc-900">
+          <span class="text-emerald-400 dark:text-emerald-600">✓</span>{{ flash }}
         </div>
+      </div>
+    </transition>
 
-        <!-- Router View with Transition -->
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
+    <main class="app-main flex-1 pt-4 md:pt-8">
+      <div class="container">
+        <!-- No route transition: an animating wrapper would trap fixed sheets/bars under the header, and costs time on low-end phones -->
+        <router-view v-slot="{ Component, route: r }">
+          <component :is="Component" :key="r.path" />
         </router-view>
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <div class="copyright">© {{ new Date().getFullYear() }} Barter. All rights reserved.</div>
+    <footer class="app-footer border-t border-[var(--color-border)] bg-[var(--color-background)]">
+      <div class="container py-6 text-sm text-[var(--color-text-light)] flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+        <span>© {{ year }} Barter · {{ $t('footer.tagline') }}</span>
+        <nav class="flex flex-wrap gap-x-4 gap-y-2">
+          <router-link to="/about" class="hover:text-[var(--color-text-main)]">{{ $t('footer.how') }}</router-link>
+          <router-link to="/guidelines" class="hover:text-[var(--color-text-main)]">{{ $t('footer.guidelines') }}</router-link>
+          <router-link to="/terms" class="hover:text-[var(--color-text-main)]">{{ $t('footer.terms') }}</router-link>
+          <router-link to="/privacy" class="hover:text-[var(--color-text-main)]">{{ $t('footer.privacy') }}</router-link>
+          <router-link to="/boost-terms" class="hover:text-[var(--color-text-main)]">{{ $t('footer.boosts') }}</router-link>
+        </nav>
       </div>
     </footer>
+
+    <!-- Phone tab bar -->
+    <nav class="tabbar md:hidden" :aria-label="$t('nav.main')">
+      <router-link to="/" class="tab" exact-active-class="tab-on"><TabIcon name="home" />{{ $t('nav.home') }}</router-link>
+      <router-link to="/listings" class="tab" active-class="tab-on"><TabIcon name="search" />{{ $t('nav.browse') }}</router-link>
+      <router-link to="/create-listing" class="tab" active-class="tab-on">
+        <span class="tab-add"><TabIcon name="plus" /></span>{{ $t('nav.listShort') }}
+      </router-link>
+      <router-link to="/messages" class="tab" active-class="tab-on">
+        <span class="relative"><TabIcon name="chat" /><i v-if="unread" class="tab-badge">{{ unread > 9 ? '9+' : unread }}</i></span>{{ $t('nav.messages') }}
+      </router-link>
+      <router-link :to="user ? `/profile/${user.uid}` : '/login'" class="tab" active-class="tab-on"><TabIcon name="user" />{{ $t('nav.me') }}</router-link>
+    </nav>
+
+    <PrefsSheet v-if="showPrefs" @close="showPrefs = false" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { auth, db } from './firebase'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { collection, query, where, getDocs } from 'firebase/firestore'
-import ThemeToggler from './components/ThemeToggler.vue'
+import { onAuthStateChanged } from 'firebase/auth'
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { setBottomChrome, TABBAR_PX } from './lib/chrome.js'
+import TabIcon from './components/TabIcon.vue'
+import FlagIcon from './components/FlagIcon.vue'
+import PrefsSheet from './components/PrefsSheet.vue'
+
+// Only the demo build carries the banner (and the demo backend it talks to).
+const DemoBanner = __DEMO__ ? defineAsyncComponent(() => import('./components/DemoBanner.vue')) : null
 
 const route = useRoute()
 const router = useRouter()
-const user = ref(null)
-const flashMessage = ref('')
-const unreadMessages = ref(0)
+const user = ref(auth.currentUser)
+const unread = ref(0)
+const flash = ref('')
+const showPrefs = ref(false)
+const year = new Date().getFullYear()
 
-// Get user initials for avatar
-const userInitials = computed(() => {
-  if (!user.value?.displayName) return '?'
+const initials = computed(() =>
+  (user.value?.displayName || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase(),
+)
 
-  const nameParts = user.value.displayName.split(' ')
-  return (nameParts[0]?.[0] || '') + (nameParts[1]?.[0] || '')
+let stopUnread = null
+onAuthStateChanged(auth, (u) => {
+  user.value = u
+  stopUnread?.()
+  stopUnread = null
+  unread.value = 0
+  if (!u) return
+  const q = query(collection(db, 'messages'), where('to_user_id', '==', u.uid), where('read', '==', false))
+  stopUnread = onSnapshot(q, (snap) => (unread.value = snap.size))
 })
 
-// Listen for auth state changes
-onAuthStateChanged(auth, async (userData) => {
-  user.value = userData
-
-  if (userData) {
-    // Fetch unread messages count
-    await fetchUnreadMessages()
-  }
-})
-
-// Watch for route changes to display flash messages
+// Flash messages arrive as ?message=... on any route and show as a toast.
+let flashTimer
 watch(
-  () => route.query,
-  (query) => {
-    if (query.message) {
-      flashMessage.value = query.message
-
-      // Clear flash message after 5 seconds
-      setTimeout(() => {
-        flashMessage.value = ''
-      }, 5000)
-
-      // Remove message from URL
-      const { message, ...rest } = route.query
-      router.replace({ query: { ...rest } })
-    }
+  () => route.query.message,
+  (msg) => {
+    if (!msg) return
+    flash.value = msg
+    clearTimeout(flashTimer)
+    flashTimer = setTimeout(() => (flash.value = ''), 3500)
+    // eslint-disable-next-line no-unused-vars
+    const { message, ...rest } = route.query
+    router.replace({ query: rest })
   },
   { immediate: true },
 )
 
-// Fetch unread messages count
-async function fetchUnreadMessages() {
-  if (!user.value) return
-
-  try {
-    const q = query(
-      collection(db, 'messages'),
-      where('to_user_id', '==', user.value.uid),
-      where('read', '==', false),
-    )
-
-    const querySnapshot = await getDocs(q)
-    unreadMessages.value = querySnapshot.size
-  } catch (error) {
-    console.error('Error fetching unread messages:', error)
-  }
+// Netlify adds a fixed badge frame on deployed sites; lift it above our bottom bars instead of letting it cover them.
+let badgeTimer
+function watchBadge() {
+  let tries = 0
+  badgeTimer = setInterval(() => {
+    if (document.getElementById('nl-badge-frame')) {
+      document.documentElement.classList.add('has-nl-badge')
+      clearInterval(badgeTimer)
+    } else if (++tries > 20) clearInterval(badgeTimer)
+  }, 500)
 }
 
-// Handle logout
-async function handleLogout() {
-  try {
-    await signOut(auth)
-    router.push('/login?message=Successfully logged out')
-  } catch (error) {
-    console.error('Error signing out:', error)
-  }
+const syncChrome = () => {
+  if (!document.documentElement.classList.contains('has-sticky-bar')) setBottomChrome(window.innerWidth < 768 ? TABBAR_PX : 0)
 }
-
-// Set up polling for unread messages
-let messageInterval
-
 onMounted(() => {
-  messageInterval = setInterval(() => {
-    if (user.value) {
-      fetchUnreadMessages()
-    }
-  }, 60000) // Check every minute
+  watchBadge()
+  syncChrome()
+  window.addEventListener('resize', syncChrome)
 })
-
 onUnmounted(() => {
-  if (messageInterval) {
-    clearInterval(messageInterval)
-  }
+  stopUnread?.()
+  clearInterval(badgeTimer)
+  window.removeEventListener('resize', syncChrome)
 })
 </script>
 
 <style>
-/* App Layout */
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header */
-.header {
-  border-bottom: 1px solid var(--color-border);
-  background-color: var(--color-background);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 2px 4px var(--color-shadow);
-}
-
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 0;
-}
-
-.logo h1 {
-  font-size: 1.5rem;
-  margin: 0;
-}
-
-.logo a {
-  color: var(--color-primary);
-  font-weight: bold;
-  transition: color 0.2s;
-}
-
-.logo a:hover {
-  color: var(--color-primary-hover);
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--color-text-secondary);
-}
-
-.avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: #ffedd5;
-  color: var(--color-primary-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-}
-
-.messages-link {
-  position: relative;
-  padding: 0.5rem 0.75rem;
-  background-color: #52525b;
-  color: white;
-  border-radius: 0.375rem;
-}
-
-.badge {
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  background-color: #dc2626;
-  color: white;
-  font-size: 0.75rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.logout-btn {
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  color: var(--color-text-light);
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-}
-
-.logout-btn:hover {
-  color: var(--color-text-main);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  padding: 1rem 0;
-}
-
-/* Flash Message */
-.flash-message {
-  margin-bottom: 1.5rem;
-  border-radius: 0.375rem;
-  background-color: #ecfdf5;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  animation: fadeIn 0.3s ease-in-out;
-  border: 1px solid #d1fae5;
-}
-
-.message-icon {
-  color: #059669;
-  margin-right: 0.5rem;
-}
-
-/* Footer */
-.footer {
-  background-color: var(--color-background);
-  border-top: 1px solid var(--color-border);
-  padding: 1.5rem 0;
-  margin-top: 3rem;
-}
-
-.copyright {
-  font-size: 0.875rem;
-  color: var(--color-text-light);
-  text-align: center;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .nav-links {
-    gap: 0.5rem;
+@layer components {
+  .app-main {
+    padding-bottom: 2rem;
+  }
+  /* Everything at the bottom of the page clears the fixed bars (tab bar / sticky action bar + Netlify badge) */
+  .app-footer {
+    padding-bottom: calc(var(--bottom-chrome, 0px) + var(--badge-h));
   }
 
-  .user-profile span {
+  .tabbar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: color-mix(in srgb, var(--color-background) 94%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--color-border);
+  }
+  html.has-sticky-bar .tabbar {
     display: none;
+  }
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-light);
+  }
+  .tab svg {
+    width: 24px;
+    height: 24px;
+  }
+  .tab-on {
+    color: var(--color-primary);
+  }
+  .tab-add {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 28px;
+    border-radius: 10px;
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .tab-add svg {
+    width: 20px;
+    height: 20px;
+  }
+  .tab-badge {
+    position: absolute;
+    top: -4px;
+    right: -9px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 9999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--color-background);
   }
 }
 </style>

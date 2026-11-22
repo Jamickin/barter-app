@@ -1,27 +1,27 @@
-# netlify.toml
+# Barter on Netlify.
+# The default build is the browser-only demo (no Firebase, no server costs).
+# To run on real Firebase later: set VITE_BACKEND=firebase plus the VITE_FIREBASE_* keys
+# in the Netlify site's environment variables, then redeploy.
 [build]
   publish = "dist"
   command = "npm run build"
 
-# SPA fallback
+[build.environment]
+  VITE_BACKEND = "demo"
+
+# Single-page app: every route serves index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Environment variables will be set in the Netlify dashboard
-# Don't include sensitive information here
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# Performance optimization
-[build.processing]
-  skip_processing = false
-[build.processing.css]
-  bundle = true
-  minify = true
-[build.processing.js]
-  bundle = true
-  minify = true
-[build.processing.html]
-  pretty_urls = true
-[build.processing.images]
-  compress = true
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

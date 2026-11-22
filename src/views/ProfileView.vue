@@ -1,644 +1,255 @@
 <template>
-  <div>
-    <!-- Loading state -->
-    <div v-if="isLoading" class="flex justify-center items-center py-12">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"
-      ></div>
-    </div>
+  <div class="mx-auto max-w-5xl">
+    <div v-if="isLoading" class="card p-6"><div class="skeleton h-16 w-16 !rounded-full"></div><div class="skeleton mt-4 h-6 w-1/3"></div><div class="skeleton mt-2 h-4 w-1/2"></div></div>
 
-    <!-- Error state -->
-    <div
-      v-else-if="error"
-      class="bg-red-50 dark:bg-red-900/30 p-4 rounded-md text-red-700 dark:text-red-300"
-    >
-      {{ error }}
-      <div class="mt-2">
-        <router-link to="/listings" class="text-red-700 dark:text-red-300 underline">
-          Return to listings
-        </router-link>
-      </div>
-    </div>
+    <p v-else-if="error" class="card p-8 text-center text-[var(--color-text-secondary)]">{{ error }}</p>
 
-    <!-- Profile information -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- User Info Card -->
-      <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-md overflow-hidden">
-        <div class="p-6">
-          <!-- User Avatar -->
-          <div class="flex flex-col items-center justify-center mb-6">
-            <div v-if="userProfile.image_url" class="mb-3">
-              <img
-                :src="userProfile.image_url"
-                :alt="userProfile.name"
-                class="h-24 w-24 rounded-full object-cover border-2 border-orange-200 dark:border-orange-900"
-              />
-            </div>
-            <div
-              v-else
-              class="w-24 h-24 rounded-full bg-orange-100 dark:bg-orange-800 flex items-center justify-center text-orange-700 dark:text-orange-300 text-3xl font-bold"
-            >
-              {{ getInitials(userProfile.name) }}
-            </div>
-          </div>
-
-          <!-- User Name -->
-          <h1 class="text-2xl font-bold text-center text-zinc-800 dark:text-white mb-2">
-            {{ userProfile.name }}
-          </h1>
-
-          <!-- Member Since -->
-          <div class="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-6">
-            Member since {{ formatDate(userProfile.created_at) }}
-          </div>
-
-          <!-- User Stats -->
-          <div class="border-t border-b border-zinc-200 dark:border-zinc-700 py-4 mb-4">
-            <div class="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div class="text-xl font-semibold text-zinc-800 dark:text-white">
-                  {{ userListings.length }}
-                </div>
-                <div class="text-sm text-zinc-500 dark:text-zinc-400">Listings</div>
-              </div>
-              <div>
-                <div class="text-xl font-semibold text-zinc-800 dark:text-white">
-                  {{ completedTrades }}
-                </div>
-                <div class="text-sm text-zinc-500 dark:text-zinc-400">Completed</div>
-              </div>
-              <div>
-                <div class="text-xl font-semibold text-zinc-800 dark:text-white">
-                  {{ activeTrades }}
-                </div>
-                <div class="text-sm text-zinc-500 dark:text-zinc-400">Active</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div v-if="userId === currentUserId">
-            <!-- Edit Profile Button -->
-            <button
-              @click="showEditProfile = true"
-              class="w-full bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded-md mb-3"
-            >
-              Edit Profile
-            </button>
-          </div>
-          <div v-else>
-            <!-- Message Button -->
-            <button
-              @click="startConversation"
-              class="w-full bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded-md"
-            >
-              Message
-            </button>
+    <template v-else>
+      <!-- Header -->
+      <section class="card p-5 md:p-8">
+        <div class="flex items-start gap-4">
+          <span class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-orange-100 text-xl font-bold text-orange-800 md:h-20 md:w-20 md:text-2xl">{{ initials }}</span>
+          <div class="min-w-0 flex-1">
+            <h1 class="truncate text-xl font-extrabold md:text-2xl">{{ profile.name }}</h1>
+            <p v-if="profile.town" class="mt-0.5 flex items-center gap-1 text-sm text-[var(--color-text-secondary)]">
+              <TabIcon name="pin" class="h-4 w-4" />{{ profile.town }}<template v-if="profile.area">, {{ profile.area }}</template>
+              <FlagIcon v-if="profile.country" :code="profile.country" :size="16" class="ml-1" />
+            </p>
+            <p v-if="profile.bio" class="mt-2 text-[15px] text-[var(--color-text-secondary)]">{{ profile.bio }}</p>
           </div>
         </div>
-      </div>
 
-      <!-- Listings Section -->
-      <div class="md:col-span-2">
-        <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-md overflow-hidden">
-          <div class="p-4 border-b border-zinc-200 dark:border-zinc-700">
-            <h2 class="text-lg font-semibold text-zinc-800 dark:text-white">
-              {{ isCurrentUser ? 'My Listings' : `${userProfile.name}'s Listings` }}
-            </h2>
-          </div>
+        <dl class="mt-5 grid grid-cols-3 divide-x divide-[var(--color-border)] rounded-xl bg-[var(--color-page)] py-3 text-center">
+          <div><dt class="text-xs text-[var(--color-text-light)]">{{ $t('profile.trades') }}</dt><dd class="text-lg font-bold">{{ tradesDone }}</dd></div>
+          <div><dt class="text-xs text-[var(--color-text-light)]">{{ $t('profile.active') }}</dt><dd class="text-lg font-bold">{{ active.length }}</dd></div>
+          <div><dt class="text-xs text-[var(--color-text-light)]">{{ $t('profile.since') }}</dt><dd class="text-lg font-bold">{{ memberYear }}</dd></div>
+        </dl>
 
-          <!-- Listings Tabs -->
-          <div class="border-b border-zinc-200 dark:border-zinc-700">
-            <div class="flex">
-              <button
-                @click="activeTab = 'all'"
-                class="flex-1 py-3 px-4 text-center"
-                :class="
-                  activeTab === 'all'
-                    ? 'border-b-2 border-orange-500 text-orange-600 font-medium'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
-                "
-              >
-                All ({{ userListings.length }})
-              </button>
-              <button
-                @click="activeTab = 'available'"
-                class="flex-1 py-3 px-4 text-center"
-                :class="
-                  activeTab === 'available'
-                    ? 'border-b-2 border-orange-500 text-orange-600 font-medium'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
-                "
-              >
-                Available ({{ availableListings.length }})
-              </button>
-              <button
-                @click="activeTab = 'completed'"
-                class="flex-1 py-3 px-4 text-center"
-                :class="
-                  activeTab === 'completed'
-                    ? 'border-b-2 border-orange-500 text-orange-600 font-medium'
-                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300'
-                "
-              >
-                Completed ({{ completedListings.length }})
-              </button>
-            </div>
-          </div>
-
-          <!-- Listings Grid -->
-          <div class="p-4">
-            <div v-if="filteredListings.length === 0" class="py-8 text-center">
-              <p class="text-zinc-500 dark:text-zinc-400">
-                {{
-                  isCurrentUser
-                    ? "You don't have any listings in this category yet"
-                    : `${userProfile.name} doesn't have any listings in this category yet`
-                }}
-              </p>
-              <div v-if="isCurrentUser" class="mt-4">
-                <router-link
-                  to="/create-listing"
-                  class="inline-block bg-orange-600 hover:bg-orange-500 text-white py-2 px-4 rounded-md"
-                >
-                  Create Listing
-                </router-link>
-              </div>
-            </div>
-
-            <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div
-                v-for="listing in filteredListings"
-                :key="listing.id"
-                class="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200"
-              >
-                <router-link :to="`/listing/${listing.id}`" class="block">
-                  <!-- Image if available -->
-                  <img
-                    v-if="listing.image_url"
-                    :src="listing.image_url"
-                    :alt="listing.tradeWhat"
-                    class="w-full h-36 object-cover"
-                  />
-
-                  <div class="p-3">
-                    <!-- Status badge -->
-                    <div v-if="listing.status" class="mb-2">
-                      <span
-                        class="px-2 py-0.5 text-xs font-medium rounded-full"
-                        :class="getStatusClasses(listing.status)"
-                      >
-                        {{ getStatusText(listing.status) }}
-                      </span>
-                    </div>
-
-                    <!-- Listing details -->
-                    <h3 class="text-md font-semibold mb-1 text-zinc-800 dark:text-white truncate">
-                      {{ listing.tradeWhat }}
-                    </h3>
-                    <div class="text-sm text-zinc-600 dark:text-zinc-400">
-                      for <span class="font-medium text-orange-600">{{ listing.forWhat }}</span>
-                    </div>
-
-                    <!-- Date -->
-                    <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
-                      {{ formatDateShort(listing.created_at) }}
-                    </div>
-                  </div>
-                </router-link>
-              </div>
-            </div>
-          </div>
+        <div class="mt-4 flex gap-2">
+          <template v-if="isMe">
+            <button type="button" class="btn-secondary flex-1" @click="openEdit">{{ $t('profile.edit') }}</button>
+            <button type="button" class="btn-ghost" @click="logout">{{ $t('profile.logout') }}</button>
+          </template>
+          <router-link v-else :to="{ path: '/messages', query: { to: id } }" class="btn btn-block">{{ $t('detail.message') }}</router-link>
         </div>
+      </section>
+
+      <!-- Tabs -->
+      <div class="sticky top-14 z-10 -mx-4 mt-6 flex gap-6 border-b border-[var(--color-border)] bg-[var(--color-page)] px-4 md:mx-0 md:px-0" role="tablist">
+        <button v-for="tb in tabs" :key="tb.k" type="button" role="tab" :aria-selected="tab === tb.k" class="tab-btn" :class="{ 'tab-btn-on': tab === tb.k }" @click="tab = tb.k">
+          {{ tb.label }} <span class="text-[var(--color-text-light)]">{{ tb.n }}</span>
+        </button>
       </div>
-    </div>
 
-    <!-- Edit Profile Modal -->
-    <div
-      v-if="showEditProfile"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-    >
-      <div class="bg-white dark:bg-zinc-800 rounded-lg max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold mb-4 text-zinc-800 dark:text-white">Edit Profile</h3>
-
-        <form @submit.prevent="updateProfile">
-          <!-- Name Field -->
-          <div class="mb-4">
-            <label
-              for="name"
-              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
-            >
-              Name
-            </label>
-            <input
-              id="name"
-              v-model="editForm.name"
-              type="text"
-              required
-              class="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-zinc-700 text-zinc-800 dark:text-white"
-            />
+      <section class="pt-5">
+        <template v-if="tab === 'listings'">
+          <div v-if="listings.length" class="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-4 md:gap-x-5">
+            <ListingCard v-for="l in sortedListings" :key="l.id" :listing="l" :categories="categories" list-name="profile" />
           </div>
-
-          <!-- Profile Image Upload -->
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              Profile Image
-            </label>
-
-            <!-- Current image preview -->
-            <div v-if="userProfile.image_url && !imagePreview" class="mb-3 flex justify-center">
-              <img
-                :src="userProfile.image_url"
-                alt="Current profile"
-                class="h-32 w-32 object-cover rounded-full"
-              />
-            </div>
-
-            <div v-if="imagePreview" class="mb-3 flex justify-center">
-              <img :src="imagePreview" alt="Preview" class="h-32 w-32 object-cover rounded-full" />
-            </div>
-
-            <div
-              class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-zinc-300 dark:border-zinc-600 border-dashed rounded-md"
-            >
-              <div class="space-y-1 text-center">
-                <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
-                  <label
-                    for="file-upload"
-                    class="relative cursor-pointer bg-white dark:bg-zinc-700 rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      accept="image/*"
-                      class="sr-only"
-                      @change="handleImageChange"
-                    />
-                  </label>
-                </div>
-                <p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 5MB</p>
-              </div>
-            </div>
-
-            <div v-if="userProfile.image_url || imagePreview" class="mt-2 text-center">
-              <button
-                type="button"
-                @click="removeImage"
-                class="text-sm text-red-600 hover:text-red-500"
-              >
-                Remove image
-              </button>
-            </div>
+          <div v-else class="py-10 text-center text-[var(--color-text-secondary)]">
+            <p>{{ isMe ? $t('profile.noListingsMe') : $t('profile.noListings', { name: firstName }) }}</p>
+            <router-link v-if="isMe" to="/create-listing" class="btn mt-4">{{ $t('home.sellCta') }}</router-link>
           </div>
+        </template>
 
-          <!-- Error Message -->
-          <div
-            v-if="updateError"
-            class="mb-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md"
-          >
-            {{ updateError }}
+        <template v-else-if="tab === 'saved'">
+          <div v-if="savedListings.length" class="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-4 md:gap-x-5">
+            <ListingCard v-for="l in savedListings" :key="l.id" :listing="l" :categories="categories" list-name="saved" />
           </div>
+          <div v-else class="py-10 text-center text-[var(--color-text-secondary)]">
+            <p>{{ $t('profile.noSaved') }}</p>
+            <router-link to="/listings" class="btn-secondary mt-4">{{ $t('msg.browse') }}</router-link>
+          </div>
+        </template>
 
-          <!-- Action Buttons -->
-          <div class="flex justify-end gap-3 mt-6">
-            <button
-              type="button"
-              @click="cancelEdit"
-              class="px-4 py-2 bg-zinc-200 dark:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-md"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-md"
-              :disabled="isUpdating"
-            >
-              <span v-if="isUpdating">Updating...</span>
-              <span v-else>Save Changes</span>
-            </button>
-          </div>
-        </form>
-      </div>
+        <template v-else-if="tab === 'receipts'">
+          <ul v-if="payments.length" class="card divide-y divide-[var(--color-border)]">
+            <li v-for="p in payments" :key="p.id" class="flex items-center gap-3 p-4 text-sm">
+              <span class="grid h-10 w-10 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"><TabIcon name="bolt" class="h-5 w-5" /></span>
+              <span class="min-w-0 flex-1">
+                <span class="block font-semibold">{{ $t('profile.boostReceipt', { n: p.days }) }}</span>
+                <span class="block truncate text-xs text-[var(--color-text-light)]">{{ listingName(p.listing_id) }} · {{ $t(`pay.${p.method}`) }} · {{ p.reference }}</span>
+              </span>
+              <span class="text-right">
+                <span class="block font-bold">{{ money(p.amount, p.currency) }}</span>
+                <span class="block text-xs text-[var(--color-text-light)]">{{ fmt(p.created_at) }}</span>
+              </span>
+            </li>
+          </ul>
+          <p v-else class="py-10 text-center text-[var(--color-text-secondary)]">{{ $t('profile.noReceipts') }}</p>
+        </template>
+      </section>
+    </template>
+
+    <!-- Edit sheet -->
+    <div v-if="showEdit" class="sheet-backdrop" @click.self="showEdit = false">
+      <form class="sheet grid gap-4" @submit.prevent="saveProfile">
+        <h2 class="text-xl font-bold">{{ $t('profile.edit') }}</h2>
+        <label><span class="label">{{ $t('auth.name') }}</span><input v-model="form.name" type="text" required /></label>
+        <div class="grid grid-cols-2 gap-3">
+          <label>
+            <span class="label">{{ $t('prefs.country') }}</span>
+            <select v-model="form.country" @change="form.town = ''">
+              <option v-for="c in COUNTRY_CODES" :key="c" :value="c">{{ $t(`country.${c}`) }}</option>
+            </select>
+          </label>
+          <label>
+            <span class="label">{{ $t('form.town') }}</span>
+            <select v-model="form.town">
+              <option value="" disabled>{{ $t('form.chooseTown') }}</option>
+              <option v-for="tn in country(form.country).towns" :key="tn" :value="tn">{{ tn }}</option>
+            </select>
+          </label>
+        </div>
+        <label><span class="label">{{ $t('form.area') }}</span><input v-model="form.area" type="text" :placeholder="$t('form.areaPlaceholder')" /></label>
+        <label>
+          <span class="label">{{ $t('auth.whatsapp') }}</span>
+          <input v-model="form.whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="077 123 4567" />
+          <span class="hint block">{{ $t('auth.whatsappHint') }}</span>
+        </label>
+        <label><span class="label">{{ $t('profile.bio') }}</span><textarea v-model="form.bio" rows="2" maxlength="200" :placeholder="$t('profile.bioPlaceholder')"></textarea></label>
+        <p v-if="saveError" class="field-error !mt-0">{{ saveError }}</p>
+        <button type="submit" class="btn btn-block" :disabled="saving">{{ saving ? $t('common.saving') : $t('form.saveChanges') }}</button>
+      </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { auth, db, storage } from '../firebase'
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  serverTimestamp,
-} from 'firebase/firestore'
-import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth, db } from '../firebase'
+import { signOut, updateProfile as updateAuthProfile } from 'firebase/auth'
+import { doc, getDoc, getDocs, updateDoc, collection, query, where, serverTimestamp } from 'firebase/firestore'
+import ListingCard from '../components/ListingCard.vue'
+import TabIcon from '../components/TabIcon.vue'
+import FlagIcon from '../components/FlagIcon.vue'
+import { COUNTRY_CODES, country, money, normalizePhone } from '../lib/regions.js'
+import { saved } from '../lib/saved.js'
+import { t } from '../i18n/index.js'
 
-const route = useRoute()
+const props = defineProps({ id: { type: String, required: true } })
 const router = useRouter()
-const userId = route.params.id
 
-// State
-const userProfile = ref({})
-const userListings = ref([])
+const profile = ref({})
+const listings = ref([])
+const savedListings = ref([])
+const payments = ref([])
+const categories = ref([])
 const isLoading = ref(true)
-const error = ref(null)
-const activeTab = ref('all')
-const currentUserId = ref(null)
-const showEditProfile = ref(false)
-const editForm = ref({ name: '' })
-const imageFile = ref(null)
-const imagePreview = ref(null)
-const shouldRemoveImage = ref(false)
-const isUpdating = ref(false)
-const updateError = ref('')
+const error = ref('')
+const tab = ref('listings')
+const showEdit = ref(false)
+const form = ref({})
+const saving = ref(false)
+const saveError = ref('')
 
-// Check if logged in user
-onMounted(async () => {
-  currentUserId.value = auth.currentUser?.uid || null
-  await loadUserData()
-})
+const isMe = computed(() => auth.currentUser?.uid === props.id)
+const firstName = computed(() => (profile.value.name || '').split(' ')[0])
+const initials = computed(() => (profile.value.name || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase())
+const active = computed(() => listings.value.filter((l) => l.status !== 'completed'))
+const tradesDone = computed(() => Math.max(profile.value.trades_completed || 0, listings.value.filter((l) => l.status === 'completed').length))
+const toDate = (v) => (v?.toDate ? v.toDate() : v ? new Date(v) : new Date())
+const memberYear = computed(() => toDate(profile.value.created_at).getFullYear())
+const sortedListings = computed(() => [...listings.value].sort((a, b) => (a.status === 'completed') - (b.status === 'completed')))
+const fmt = (v) => toDate(v).toLocaleDateString([], { day: 'numeric', month: 'short' })
+const listingName = (id) => listings.value.find((l) => l.id === id)?.tradeWhat || ''
 
-// Load user data and listings
-const loadUserData = async () => {
+const tabs = computed(() => [
+  { k: 'listings', label: t('profile.tabListings'), n: listings.value.length },
+  ...(isMe.value ? [{ k: 'saved', label: t('profile.tabSaved'), n: saved.size }, { k: 'receipts', label: t('profile.tabReceipts'), n: payments.value.length }] : []),
+])
+
+async function load() {
+  isLoading.value = true
   try {
-    // Get user profile
-    const userDoc = await getDoc(doc(db, 'users', userId))
-
-    if (!userDoc.exists()) {
-      error.value = 'User not found'
-      isLoading.value = false
-      return
+    const [u, ls, cats] = await Promise.all([
+      getDoc(doc(db, 'users', props.id)),
+      getDocs(query(collection(db, 'listings'), where('by_user_id', '==', props.id))),
+      getDocs(collection(db, 'categories')),
+    ])
+    if (!u.exists()) return (error.value = t('profile.notFound'))
+    profile.value = u.data()
+    document.title = `${profile.value.name} · Barter`
+    listings.value = ls.docs.map((d) => ({ id: d.id, ...d.data() }))
+    categories.value = cats.docs.map((d) => ({ id: d.id, ...d.data() }))
+    if (isMe.value) {
+      const pay = await getDocs(query(collection(db, 'payments'), where('user_id', '==', props.id)))
+      payments.value = pay.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => toDate(b.created_at) - toDate(a.created_at))
     }
-
-    // Set user data
-    userProfile.value = {
-      id: userId,
-      ...userDoc.data(),
-      created_at: userDoc.data().created_at?.toDate() || new Date(),
-      updated_at: userDoc.data().updated_at?.toDate() || new Date(),
-    }
-
-    // Initialize edit form if this is the current user
-    if (isCurrentUser.value) {
-      editForm.value.name = userProfile.value.name
-    }
-
-    // Get user listings
-    const listingsQuery = query(collection(db, 'listings'), where('by_user_id', '==', userId))
-
-    const listingsSnapshot = await getDocs(listingsQuery)
-    userListings.value = listingsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      created_at: doc.data().created_at?.toDate() || new Date(),
-      updated_at: doc.data().updated_at?.toDate() || new Date(),
-    }))
-
-    isLoading.value = false
-  } catch (err) {
-    console.error('Error loading user data:', err)
-    error.value = 'Error loading user data'
-    isLoading.value = false
-  }
-}
-
-// Check if viewing own profile
-const isCurrentUser = computed(() => {
-  return currentUserId.value === userId
-})
-
-// Filter listings based on active tab
-const filteredListings = computed(() => {
-  if (activeTab.value === 'all') {
-    return userListings.value
-  } else if (activeTab.value === 'available') {
-    return availableListings.value
-  } else if (activeTab.value === 'completed') {
-    return completedListings.value
-  }
-  return userListings.value
-})
-
-// Available listings
-const availableListings = computed(() => {
-  return userListings.value.filter((listing) => listing.status === 'available')
-})
-
-// Completed listings
-const completedListings = computed(() => {
-  return userListings.value.filter((listing) => listing.status === 'completed')
-})
-
-// Count stats
-const activeTrades = computed(() => {
-  return userListings.value.filter(
-    (listing) => listing.status === 'available' || listing.status === 'pending',
-  ).length
-})
-
-const completedTrades = computed(() => {
-  return userListings.value.filter((listing) => listing.status === 'completed').length
-})
-
-// Handle image change
-const handleImageChange = (event) => {
-  const file = event.target.files[0]
-  if (!file) return
-
-  // Validate file size (5MB max)
-  if (file.size > 5 * 1024 * 1024) {
-    updateError.value = 'Image must be less than 5MB'
-    return
-  }
-
-  // Validate file type
-  if (!file.type.match('image.*')) {
-    updateError.value = 'Please upload an image file'
-    return
-  }
-
-  // Clear previous error
-  updateError.value = ''
-
-  // Set file for upload
-  imageFile.value = file
-  shouldRemoveImage.value = false
-
-  // Create preview
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    imagePreview.value = e.target.result
-  }
-  reader.readAsDataURL(file)
-}
-
-// Remove image
-const removeImage = () => {
-  shouldRemoveImage.value = true
-  imageFile.value = null
-  imagePreview.value = null
-}
-
-// Update profile
-const updateProfile = async () => {
-  if (!isCurrentUser.value) {
-    return
-  }
-
-  isUpdating.value = true
-  updateError.value = ''
-
-  try {
-    const userRef = doc(db, 'users', userId)
-
-    // Prepare update data
-    const updateData = {
-      name: editForm.value.name,
-      updated_at: serverTimestamp(),
-    }
-
-    // Handle image upload or removal
-    if (imageFile.value) {
-      // Remove old image if exists
-      if (userProfile.value.image_url) {
-        try {
-          // Extract path from URL
-          const oldImagePath = userProfile.value.image_url
-            .split('?')[0]
-            .split('/o/')[1]
-            .replace(/%2F/g, '/')
-          const decodedPath = decodeURIComponent(oldImagePath)
-          await deleteObject(storageRef(storage, decodedPath))
-        } catch (error) {
-          console.error('Error deleting old image:', error)
-          // Continue even if there's an error deleting the old image
-        }
-      }
-
-      // Upload new image
-      const fileExt = imageFile.value.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`
-      const filePath = `users/${userId}/${fileName}`
-
-      const fileRef = storageRef(storage, filePath)
-      await uploadBytes(fileRef, imageFile.value)
-
-      const downloadURL = await getDownloadURL(fileRef)
-      updateData.image_url = downloadURL
-    } else if (shouldRemoveImage.value && userProfile.value.image_url) {
-      // Remove image from storage
-      try {
-        const oldImagePath = userProfile.value.image_url
-          .split('?')[0]
-          .split('/o/')[1]
-          .replace(/%2F/g, '/')
-        const decodedPath = decodeURIComponent(oldImagePath)
-        await deleteObject(storageRef(storage, decodedPath))
-      } catch (error) {
-        console.error('Error deleting image:', error)
-      }
-
-      // Remove image URL from profile
-      updateData.image_url = null
-    }
-
-    // Update user document
-    await updateDoc(userRef, updateData)
-
-    // Update auth profile if name changed
-    if (auth.currentUser.displayName !== editForm.value.name) {
-      await auth.currentUser.updateProfile({
-        displayName: editForm.value.name,
-      })
-    }
-
-    // Close modal and reload data
-    showEditProfile.value = false
-    await loadUserData()
-
-    // Show success message
-    router.push({
-      path: `/profile/${userId}`,
-      query: { message: 'Profile updated successfully!' },
-    })
-  } catch (error) {
-    console.error('Error updating profile:', error)
-    updateError.value = 'An error occurred while updating your profile. Please try again.'
+  } catch (e) {
+    console.error('Error loading profile:', e)
+    error.value = t('detail.loadError')
   } finally {
-    isUpdating.value = false
+    isLoading.value = false
   }
 }
 
-// Cancel edit
-const cancelEdit = () => {
-  showEditProfile.value = false
-  editForm.value.name = userProfile.value.name
-  imageFile.value = null
-  imagePreview.value = null
-  shouldRemoveImage.value = false
-  updateError.value = ''
+async function loadSaved() {
+  const rows = await Promise.all([...saved].map((id) => getDoc(doc(db, 'listings', id))))
+  savedListings.value = rows.filter((s) => s.exists()).map((s) => ({ id: s.id, ...s.data() }))
 }
 
-// Start conversation with user
-const startConversation = () => {
-  router.push(`/messages?to=${userId}`)
-}
+onMounted(load)
+watch(tab, (tb) => tb === 'saved' && loadSaved())
 
-// Format date
-const formatDate = (date) => {
-  if (!date) return 'Unknown'
-
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-// Format date (short version)
-const formatDateShort = (date) => {
-  if (!date) return 'Unknown'
-
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-// Get initials from name
-const getInitials = (name) => {
-  if (!name) return '?'
-
-  const parts = name.split(' ')
-  return (parts[0]?.[0] || '').toUpperCase() + (parts[1]?.[0] || '').toUpperCase()
-}
-
-// Get status classes for badges
-const getStatusClasses = (status) => {
-  const classMap = {
-    available: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    pending: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-    completed: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+function openEdit() {
+  const p = profile.value
+  const dial = country(p.country).dial
+  form.value = {
+    name: p.name || '',
+    country: p.country || 'ZW',
+    town: p.town || '',
+    area: p.area || '',
+    whatsapp: p.whatsapp ? '0' + p.whatsapp.slice(dial.length) : '',
+    bio: p.bio || '',
   }
-  return classMap[status] || 'bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-300'
+  saveError.value = ''
+  showEdit.value = true
 }
 
-// Get status text
-const getStatusText = (status) => {
-  const statusMap = {
-    available: 'Available',
-    pending: 'Pending',
-    completed: 'Completed',
+async function saveProfile() {
+  saving.value = true
+  try {
+    const f = form.value
+    await updateDoc(doc(db, 'users', props.id), {
+      name: f.name.trim(),
+      country: f.country,
+      town: f.town,
+      area: f.area.trim(),
+      whatsapp: normalizePhone(f.whatsapp, f.country),
+      bio: f.bio.trim(),
+      updated_at: serverTimestamp(),
+    })
+    if (auth.currentUser.displayName !== f.name.trim()) await updateAuthProfile(auth.currentUser, { displayName: f.name.trim() })
+    showEdit.value = false
+    await load()
+    router.replace({ query: { message: t('profile.saved') } })
+  } catch (e) {
+    console.error('Error saving profile:', e)
+    saveError.value = t('form.errSave')
+  } finally {
+    saving.value = false
   }
-  return statusMap[status] || 'Unknown'
+}
+
+async function logout() {
+  await signOut(auth)
+  router.push({ path: '/', query: { message: t('profile.loggedOut') } })
 }
 </script>
+
+<style scoped>
+.tab-btn {
+  min-height: 48px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--color-text-light);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tab-btn-on {
+  color: var(--color-text-main);
+  border-color: var(--color-text-main);
+}
+</style>
