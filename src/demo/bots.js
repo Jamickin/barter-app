@@ -65,7 +65,7 @@ export function afterWrite(collection, id, kind) {
             const l = st.collections.listings[lid]
             if (l) l.status = 'pending'
           }
-          post(msg.to_user_id, msg.from_user_id, msg.listing_id, 'Deal! 🤝 Let us arrange where to meet.')
+          post(msg.to_user_id, msg.from_user_id, msg.listing_id, 'Deal. Let us arrange where to meet.')
         } else {
           msg.offer.status = 'declined'
           post(msg.to_user_id, msg.from_user_id, msg.listing_id, pick([

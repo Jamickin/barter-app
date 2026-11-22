@@ -8,7 +8,7 @@
       <!-- Header -->
       <section class="card p-5 md:p-8">
         <div class="flex items-start gap-4">
-          <span class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-orange-100 text-xl font-bold text-orange-800 md:h-20 md:w-20 md:text-2xl">{{ initials }}</span>
+          <span class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-zinc-200 text-xl font-bold text-zinc-700 md:h-20 md:w-20 md:text-2xl">{{ initials }}</span>
           <div class="min-w-0 flex-1">
             <h1 class="truncate text-xl font-extrabold md:text-2xl">{{ profile.name }}</h1>
             <p v-if="profile.town" class="mt-0.5 flex items-center gap-1 text-sm text-[var(--color-text-secondary)]">
@@ -65,7 +65,7 @@
         <template v-else-if="tab === 'receipts'">
           <ul v-if="payments.length" class="card divide-y divide-[var(--color-border)]">
             <li v-for="p in payments" :key="p.id" class="flex items-center gap-3 p-4 text-sm">
-              <span class="grid h-10 w-10 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"><TabIcon name="bolt" class="h-5 w-5" /></span>
+              <span class="grid h-10 w-10 place-items-center rounded-full bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"><TabIcon name="bolt" class="h-5 w-5" /></span>
               <span class="min-w-0 flex-1">
                 <span class="block font-semibold">{{ $t('profile.boostReceipt', { n: p.days }) }}</span>
                 <span class="block truncate text-xs text-[var(--color-text-light)]">{{ listingName(p.listing_id) }} · {{ $t(`pay.${p.method}`) }} · {{ p.reference }}</span>

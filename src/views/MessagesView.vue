@@ -14,7 +14,7 @@
         </div>
         <div class="md:max-h-[calc(100vh-15rem)] md:overflow-y-auto">
           <div v-if="!filtered.length" class="px-6 py-10 text-center">
-            <div class="text-4xl">💬</div>
+            
             <p class="mt-2 font-semibold">{{ $t('msg.emptyTitle') }}</p>
             <p class="mt-1 text-sm text-[var(--color-text-secondary)]">{{ $t('msg.emptyText') }}</p>
             <router-link to="/listings" class="btn btn-sm mt-4">{{ $t('msg.browse') }}</router-link>
@@ -24,12 +24,12 @@
             :key="c.key"
             type="button"
             class="flex w-full items-center gap-3 border-b border-[var(--color-border)] px-4 py-3.5 text-left last:border-0 hover:bg-[var(--color-page)]"
-            :class="{ 'md:bg-orange-50 md:dark:bg-orange-950/20': selected?.key === c.key }"
+            :class="{ 'md:bg-zinc-100 md:dark:bg-zinc-800': selected?.key === c.key }"
             @click="openConversation(c)"
           >
             <span class="relative shrink-0">
               <img v-if="c.listing?.image_url" :src="c.listing.image_url" alt="" class="h-12 w-12 rounded-xl object-cover" />
-              <span v-else class="grid h-12 w-12 place-items-center rounded-xl bg-orange-100 text-sm font-bold text-orange-800">{{ initials(c.otherUser?.name) }}</span>
+              <span v-else class="grid h-12 w-12 place-items-center rounded-xl bg-zinc-200 text-sm font-bold text-zinc-700">{{ initials(c.otherUser?.name) }}</span>
             </span>
             <span class="min-w-0 flex-1">
               <span class="flex items-baseline justify-between gap-2">
@@ -39,7 +39,7 @@
               <span v-if="c.listing" class="block truncate text-xs text-[var(--color-text-light)]">{{ c.listing.tradeWhat }}</span>
               <span class="mt-0.5 flex items-center gap-2">
                 <span class="flex-1 truncate text-sm" :class="c.unread ? 'font-semibold text-[var(--color-text-main)]' : 'text-[var(--color-text-secondary)]'">
-                  <template v-if="c.last?.type === 'offer'">🤝 {{ $t('msg.offerPreview') }}</template><template v-else>{{ c.last?.text || $t('msg.newConversation') }}</template>
+                  <template v-if="c.last?.type === 'offer'">{{ $t('msg.offerPreview') }}</template><template v-else>{{ c.last?.text || $t('msg.newConversation') }}</template>
                 </span>
                 <span v-if="c.unread" class="grid h-5 min-w-5 place-items-center rounded-full bg-[var(--color-primary)] px-1.5 text-[11px] font-bold text-white">{{ c.unread }}</span>
               </span>
@@ -51,7 +51,7 @@
       <!-- Thread: full screen on phones, panel on desktop -->
       <div v-if="!selected" class="card hidden place-items-center p-10 text-center md:grid">
         <div>
-          <div class="text-5xl">💬</div>
+          
           <p class="mt-3 font-semibold">{{ $t('msg.pick') }}</p>
         </div>
       </div>
@@ -61,7 +61,7 @@
           <button type="button" class="grid h-10 w-10 place-items-center rounded-full md:hidden" :aria-label="$t('common.back')" @click="closeConversation">
             <TabIcon name="back" class="h-6 w-6" />
           </button>
-          <router-link :to="`/profile/${selected.otherId}`" class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-orange-100 text-sm font-bold text-orange-800">{{ initials(selected.otherUser?.name) }}</router-link>
+          <router-link :to="`/profile/${selected.otherId}`" class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-zinc-200 text-sm font-bold text-zinc-700">{{ initials(selected.otherUser?.name) }}</router-link>
           <div class="min-w-0 flex-1">
             <router-link :to="`/profile/${selected.otherId}`" class="block truncate font-semibold">{{ selected.otherUser?.name || $t('common.trader') }}</router-link>
             <p class="truncate text-xs text-[var(--color-text-light)]">{{ selected.otherUser?.town }}</p>
@@ -126,7 +126,7 @@
             <div v-else class="flex" :class="{ 'justify-end': mine(m) }">
               <div class="max-w-[80%] rounded-2xl px-3.5 py-2" :class="mine(m) ? 'rounded-br-md bg-[var(--color-primary)] text-white' : 'rounded-bl-md bg-[var(--color-background)] ring-1 ring-[var(--color-border)]'">
                 <p class="whitespace-pre-wrap break-words text-[15px]">{{ m.text }}</p>
-                <p class="mt-0.5 text-right text-[11px]" :class="mine(m) ? 'text-orange-100' : 'text-[var(--color-text-light)]'">
+                <p class="mt-0.5 text-right text-[11px]" :class="mine(m) ? 'text-zinc-400' : 'text-[var(--color-text-light)]'">
                   {{ clock(m.created_at) }}<template v-if="mine(m)"> · {{ m.read ? $t('msg.read') : $t('msg.sent') }}</template>
                 </p>
               </div>
@@ -374,8 +374,8 @@ const offerTopup = (m) => {
   if (mine(m)) return tp.dir === 'add' ? t('msg.youAddCash', { m: mm }) : t('msg.youWantCash', { m: mm })
   return tp.dir === 'add' ? t('msg.theyAddCash', { m: mm }) : t('msg.theyWantCash', { m: mm })
 }
-const offerTone = (s) => ({ open: 'text-amber-600', accepted: 'text-emerald-600', declined: 'text-red-600', withdrawn: 'text-zinc-400' })[s]
-const offerBorder = (s) => ({ open: 'border-amber-300', accepted: 'border-emerald-400', declined: 'border-red-200', withdrawn: 'border-[var(--color-border)] opacity-70' })[s]
+const offerTone = (s) => ({ open: 'text-[var(--color-text-secondary)]', accepted: 'text-emerald-600', declined: 'text-red-600', withdrawn: 'text-zinc-400' })[s]
+const offerBorder = (s) => ({ open: 'border-zinc-300 dark:border-zinc-600', accepted: 'border-emerald-400', declined: 'border-red-200', withdrawn: 'border-[var(--color-border)] opacity-70' })[s]
 
 const firstName = (n) => (n || '').split(' ')[0]
 const initials = (n) => (n || '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()

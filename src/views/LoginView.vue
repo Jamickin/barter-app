@@ -3,7 +3,7 @@
     <h1 class="text-2xl font-extrabold tracking-tight md:text-3xl">{{ $t('auth.signInTitle') }}</h1>
     <p class="mt-1 text-[var(--color-text-secondary)]">{{ $t('auth.signInSub') }}</p>
 
-    <div v-if="isDemo" class="mt-6 rounded-2xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/60 dark:bg-orange-950/30">
+    <div v-if="isDemo" class="mt-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
       <p class="text-sm"><strong>{{ $t('auth.demoTitle') }}</strong> {{ $t('auth.demoText') }}</p>
       <button type="button" class="btn btn-block mt-3" @click="demoSignIn">{{ $t('demo.tryAs', { name: 'Tendai' }) }}</button>
     </div>

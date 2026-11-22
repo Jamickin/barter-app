@@ -7,7 +7,7 @@
     </div>
 
     <div v-else-if="error" class="card mx-auto max-w-md p-8 text-center">
-      <div class="text-4xl">🫙</div>
+      
       <h1 class="mt-3 text-lg font-bold">{{ $t('detail.goneTitle') }}</h1>
       <p class="mt-1 text-[var(--color-text-secondary)]">{{ error }}</p>
       <router-link to="/listings" class="btn mt-5">{{ $t('detail.browseOthers') }}</router-link>
@@ -18,7 +18,7 @@
         <!-- Image -->
         <div class="relative -mx-4 -mt-4 md:mx-0 md:mt-0">
           <div class="aspect-square overflow-hidden bg-[var(--color-border)] md:sticky md:top-20 md:rounded-3xl">
-            <img :src="listing.image_url || placeholderArt(categoryIcon(categories, listing.category_id))" :alt="listing.tradeWhat" class="h-full w-full object-cover" />
+            <img :src="listing.image_url || placeholderArt(listing.category_id)" :alt="listing.tradeWhat" class="h-full w-full object-cover" />
           </div>
           <div class="absolute inset-x-0 top-0 flex items-center justify-between p-3 md:hidden">
             <button type="button" class="icon-btn" :aria-label="$t('common.back')" @click="goBack"><TabIcon name="back" /></button>
@@ -35,10 +35,10 @@
         <div class="flex flex-col gap-5">
           <div>
             <div class="flex flex-wrap items-center gap-2 text-xs font-medium">
-              <span v-if="boosted" class="pill bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200"><TabIcon name="bolt" class="h-3 w-3" />{{ $t('card.boosted') }}</span>
+              <span v-if="boosted" class="pill bg-zinc-900 text-white dark:bg-white dark:text-zinc-900"><TabIcon name="bolt" class="h-3 w-3" />{{ $t('card.boosted') }}</span>
               <span class="pill" :class="statusClass">{{ $t(`status.${listing.status || 'available'}`) }}</span>
               <router-link :to="{ path: '/listings', query: { category: listing.category_id } }" class="pill bg-[var(--color-background)] ring-1 ring-[var(--color-border)]">
-                {{ categoryIcon(categories, listing.category_id) }} {{ categoryName(category) }}
+                <CategoryIcon :id="listing.category_id" class="h-3.5 w-3.5" />{{ categoryName(category) }}
               </router-link>
             </div>
             <h1 class="mt-3 text-2xl font-extrabold leading-tight tracking-tight md:text-3xl">{{ listing.tradeWhat }}</h1>
@@ -49,8 +49,8 @@
           </div>
 
           <!-- What they want: the "price" of a swap -->
-          <div class="rounded-2xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/60 dark:bg-orange-950/30">
-            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-orange-700 dark:text-orange-300"><TabIcon name="swap" class="h-4 w-4" />{{ $t('detail.wants') }}</div>
+          <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-background)] p-4">
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-light)]"><TabIcon name="swap" class="h-4 w-4" />{{ $t('detail.wants') }}</div>
             <p class="mt-1.5 text-lg font-semibold leading-snug">{{ listing.forWhat }}</p>
             <p v-if="topupText(listing.topup)" class="mt-1 text-sm font-medium text-emerald-700 dark:text-emerald-400">{{ topupText(listing.topup) }}</p>
           </div>
@@ -90,12 +90,12 @@
                 {{ $t(`status.${s}`) }}
               </button>
             </div>
-            <div v-if="!boosted && listing.status === 'available'" class="mt-4 flex items-center gap-3 rounded-xl bg-amber-50 p-3 dark:bg-amber-950/30">
-              <TabIcon name="bolt" class="h-6 w-6 shrink-0 text-amber-500" />
+            <div v-if="!boosted && listing.status === 'available'" class="mt-4 flex items-center gap-3 rounded-xl bg-zinc-100 p-3 dark:bg-zinc-800">
+              <TabIcon name="bolt" class="h-6 w-6 shrink-0 text-[var(--color-text-main)]" />
               <p class="flex-1 text-sm">{{ $t('detail.boostNudge', { m: cheapestBoost }) }}</p>
               <button type="button" class="btn btn-sm" @click="openBoost">{{ $t('detail.boostShort') }}</button>
             </div>
-            <p v-else-if="boosted" class="mt-3 text-sm text-amber-700 dark:text-amber-300">{{ $t('detail.boostedUntil', { date: boostedUntilText }) }}</p>
+            <p v-else-if="boosted" class="mt-3 text-sm text-[var(--color-text-secondary)]">{{ $t('detail.boostedUntil', { date: boostedUntilText }) }}</p>
             <button type="button" class="mt-4 text-sm font-medium text-red-600" @click="showDelete = true">{{ $t('detail.delete') }}</button>
           </div>
 
@@ -107,7 +107,7 @@
 
           <!-- Trader -->
           <router-link :to="`/profile/${listing.by_user_id}`" class="card flex items-center gap-3 p-4 transition hover:border-[var(--color-text-light)]">
-            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-orange-100 font-bold text-orange-800">{{ initials(owner?.name) }}</span>
+            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-zinc-200 font-bold text-zinc-700">{{ initials(owner?.name) }}</span>
             <span class="min-w-0 flex-1">
               <span class="block truncate font-semibold">{{ owner?.name || $t('common.trader') }}</span>
               <span class="block text-xs text-[var(--color-text-light)]">
@@ -177,7 +177,7 @@
           <legend class="label">{{ $t('offer.give') }}</legend>
           <label v-for="l in myListings" :key="l.id" class="option" :class="{ 'option-on': offer.give === l.id }">
             <input v-model="offer.give" type="radio" :value="l.id" />
-            <img :src="l.image_url || placeholderArt(categoryIcon(categories, l.category_id))" alt="" class="h-11 w-11 rounded-lg object-cover" />
+            <img :src="l.image_url || placeholderArt(l.category_id)" alt="" class="h-11 w-11 rounded-lg object-cover" />
             <span class="text-sm font-medium">{{ l.tradeWhat }}</span>
           </label>
           <label class="option" :class="{ 'option-on': offer.give === 'other' }">
@@ -229,6 +229,7 @@
 </template>
 
 <script setup>
+import CategoryIcon from '../components/CategoryIcon.vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { auth, db } from '../firebase'
@@ -238,7 +239,7 @@ import ListingCard from '../components/ListingCard.vue'
 import BoostSheet from '../components/BoostSheet.vue'
 import TopupInput from '../components/TopupInput.vue'
 import TabIcon from '../components/TabIcon.vue'
-import { topupText, whatsappLink, placeholderArt, categoryIcon, categoryName, isBoosted, country, money } from '../lib/regions.js'
+import { topupText, whatsappLink, placeholderArt, categoryName, isBoosted, country, money } from '../lib/regions.js'
 import { saved, toggleSaved } from '../lib/saved.js'
 import { useStickyBar } from '../lib/chrome.js'
 import { track } from '../lib/track.js'
@@ -279,8 +280,8 @@ const category = computed(() => categories.value.find((c) => c.id === listing.va
 const statusClass = computed(
   () =>
     ({
-      available: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-      pending: 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200',
+      available: 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900',
+      pending: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200',
       completed: 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
     })[listing.value?.status || 'available'],
 )

@@ -1,40 +1,35 @@
 <template>
   <div class="flex flex-col gap-10 md:gap-14">
     <!-- Hero: one job, get people searching -->
-    <section class="-mx-4 md:mx-0 -mt-4 md:mt-0 overflow-hidden bg-gradient-to-br from-orange-600 via-orange-500 to-amber-400 px-4 pb-8 pt-7 text-white md:rounded-3xl md:px-12 md:py-14">
+    <section class="pt-4 md:pt-10">
       <div class="max-w-2xl">
-        <p class="text-xs font-semibold uppercase tracking-[0.14em] text-orange-100">{{ $t('home.kicker', { country: $t(`country.${prefs.country}`) }) }}</p>
-        <h1 class="mt-2 text-[28px] leading-[1.15] font-extrabold md:text-5xl">{{ $t('home.title') }}</h1>
-        <p class="mt-3 text-[15px] text-orange-50 md:text-lg">{{ $t('home.subtitle') }}</p>
+        <p class="text-xs font-medium uppercase tracking-[0.14em] text-[var(--color-text-light)]">{{ $t(`country.${prefs.country}`) }}</p>
+        <h1 class="mt-3 text-[32px] leading-[1.1] font-bold tracking-tight md:text-6xl">{{ $t('home.title') }}</h1>
+        <p class="mt-4 text-base text-[var(--color-text-secondary)] md:text-lg">{{ $t('home.subtitle') }}</p>
 
-        <form class="mt-6 flex gap-2 rounded-2xl bg-white p-1.5 shadow-xl shadow-orange-900/20" role="search" @submit.prevent="search()">
-          <input
-            v-model.trim="q"
-            type="search"
-            :placeholder="$t('home.searchPlaceholder')"
-            :aria-label="$t('home.searchPlaceholder')"
-            class="!min-h-11 !border-0 !shadow-none !bg-transparent text-zinc-900"
-          />
-          <button type="submit" class="btn !min-h-11 shrink-0">{{ $t('common.search') }}</button>
+        <form class="mt-7 flex gap-2" role="search" @submit.prevent="search()">
+          <div class="relative flex-1">
+            <TabIcon name="search" class="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-text-light)]" />
+            <input v-model.trim="q" type="search" class="!pl-11" :placeholder="$t('home.searchPlaceholder')" :aria-label="$t('home.searchPlaceholder')" />
+          </div>
+          <button type="submit" class="btn shrink-0">{{ $t('common.search') }}</button>
         </form>
-        <div class="mt-3 flex flex-wrap gap-2 text-sm">
-          <span class="text-orange-100">{{ $t('home.popular') }}</span>
-          <button v-for="s in popular" :key="s" type="button" class="rounded-full bg-white/15 px-3 py-1 font-medium hover:bg-white/25" @click="search(s)">{{ s }}</button>
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <span class="text-[var(--color-text-light)]">{{ $t('home.popular') }}</span>
+          <button v-for="s in popular" :key="s" type="button" class="chip !min-h-8" @click="search(s)">{{ s }}</button>
         </div>
 
-        <button v-if="isDemo && !isAuthenticated" type="button" class="mt-6 inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4" @click="tryDemo">
+        <button v-if="isDemo && !isAuthenticated" type="button" class="mt-6 text-sm font-medium text-[var(--color-text-secondary)] underline underline-offset-4 hover:text-[var(--color-text-main)]" @click="tryDemo">
           {{ $t('home.tryDemo') }} →
         </button>
       </div>
     </section>
 
     <!-- Trust strip -->
-    <section class="grid grid-cols-3 gap-2 text-center md:gap-4">
-      <div v-for="p in trust" :key="p.k" class="flex flex-col items-center gap-1.5 px-1">
-        <span class="grid h-10 w-10 place-items-center rounded-full bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300">
-          <TabIcon :name="p.icon" class="h-5 w-5" />
-        </span>
-        <span class="text-[13px] font-semibold leading-tight">{{ $t(`home.trust.${p.k}`) }}</span>
+    <section class="grid grid-cols-3 divide-x divide-[var(--color-border)] border-y border-[var(--color-border)] py-4 text-center">
+      <div v-for="p in trust" :key="p.k" class="flex flex-col items-center gap-1.5 px-2">
+        <TabIcon :name="p.icon" class="h-5 w-5 text-[var(--color-text-secondary)]" />
+        <span class="text-[13px] font-medium leading-tight">{{ $t(`home.trust.${p.k}`) }}</span>
         <span class="hidden text-xs text-[var(--color-text-light)] md:block">{{ $t(`home.trust.${p.k}Sub`) }}</span>
       </div>
     </section>
@@ -49,7 +44,7 @@
           :to="{ path: '/listings', query: { category: c.id } }"
           class="flex w-[76px] shrink-0 flex-col items-center gap-2 md:w-auto"
         >
-          <span class="grid h-16 w-16 place-items-center rounded-2xl bg-[var(--color-background)] text-3xl ring-1 ring-[var(--color-border)] transition hover:ring-[var(--color-primary)]">{{ c.icon }}</span>
+          <span class="grid h-16 w-16 place-items-center rounded-2xl bg-[var(--color-background)] text-[var(--color-text-secondary)] ring-1 ring-[var(--color-border)] transition hover:ring-[var(--color-text-light)]"><CategoryIcon :id="c.id" class="h-7 w-7" /></span>
           <span class="text-center text-xs font-medium leading-tight text-[var(--color-text-secondary)]">{{ categoryName(c) }}</span>
         </router-link>
       </div>
@@ -58,7 +53,7 @@
     <!-- Boosted -->
     <section v-if="boosted.length">
       <div class="mb-3 flex items-end justify-between">
-        <h2 class="section-title !mb-0 flex items-center gap-1.5"><TabIcon name="bolt" class="h-5 w-5 text-amber-500" />{{ $t('home.featured') }}</h2>
+        <h2 class="section-title !mb-0 flex items-center gap-1.5"><TabIcon name="bolt" class="h-5 w-5 text-[var(--color-text-main)]" />{{ $t('home.featured') }}</h2>
         <router-link to="/listings" class="text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
       </div>
       <div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 no-scrollbar md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:px-0">
@@ -116,6 +111,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore'
 import ListingCard from '../components/ListingCard.vue'
 import TabIcon from '../components/TabIcon.vue'
+import CategoryIcon from '../components/CategoryIcon.vue'
 import { prefs, t } from '../i18n/index.js'
 import { categoryName, isBoosted } from '../lib/regions.js'
 

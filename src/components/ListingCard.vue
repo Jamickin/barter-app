@@ -3,13 +3,13 @@
     <router-link :to="`/listing/${listing.id}`" class="block" @click="track('select_listing', { listing_id: listing.id, list: listName })">
       <div class="relative aspect-square overflow-hidden rounded-2xl bg-[var(--color-border)]">
         <img
-          :src="listing.image_url || placeholderArt(categoryIcon(categories, listing.category_id))"
+          :src="listing.image_url || placeholderArt(listing.category_id)"
           :alt="listing.tradeWhat"
           loading="lazy"
           decoding="async"
           class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]"
         />
-        <span v-if="boosted" class="badge absolute left-2 top-2 bg-amber-400 text-amber-950">
+        <span v-if="boosted" class="badge absolute left-2 top-2 bg-zinc-900/90 text-white">
           <TabIcon name="bolt" class="h-3 w-3" />{{ $t('card.boosted') }}
         </span>
         <span v-else-if="listing.status === 'pending'" class="badge absolute left-2 top-2 bg-white/95 text-zinc-900">{{ $t('status.pending') }}</span>
@@ -46,7 +46,7 @@
 <script setup>
 import { computed } from 'vue'
 import TabIcon from './TabIcon.vue'
-import { topupText, placeholderArt, categoryIcon, isBoosted } from '../lib/regions.js'
+import { topupText, placeholderArt, isBoosted } from '../lib/regions.js'
 import { saved, toggleSaved } from '../lib/saved.js'
 import { track } from '../lib/track.js'
 import { t } from '../i18n/index.js'

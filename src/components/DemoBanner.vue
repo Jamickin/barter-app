@@ -1,8 +1,8 @@
 <template>
   <div class="bg-zinc-900 text-zinc-200 text-[13px]">
     <div class="container flex h-10 items-center gap-3">
-      <span class="inline-flex items-center gap-1.5 font-semibold text-orange-300 shrink-0">
-        <span class="h-1.5 w-1.5 rounded-full bg-orange-400 animate-pulse"></span>{{ $t('demo.label') }}
+      <span class="inline-flex items-center gap-1.5 font-semibold text-zinc-400 shrink-0">
+        <span class="h-1.5 w-1.5 rounded-full bg-zinc-400 animate-pulse"></span>{{ $t('demo.label') }}
       </span>
       <span class="truncate text-zinc-400 hidden sm:block">{{ $t('demo.explain') }}</span>
       <span class="ml-auto flex items-center gap-1.5 shrink-0">
@@ -65,9 +65,9 @@ function reset() {
   background: #27272a;
 }
 .demo-btn-primary {
-  background: #ea580c;
-  border-color: #ea580c;
-  color: #fff;
+  background: #fafafa;
+  border-color: #fafafa;
+  color: #18181b;
   font-weight: 600;
 }
 .demo-select {

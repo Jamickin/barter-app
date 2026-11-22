@@ -4,7 +4,7 @@
 
     <header class="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-background)]/90 backdrop-blur">
       <div class="container flex h-14 items-center gap-2">
-        <router-link to="/" class="mr-auto text-xl font-extrabold tracking-wide text-[var(--color-primary)]" aria-label="Barter">
+        <router-link to="/" class="mr-auto text-xl font-extrabold tracking-wide text-[var(--color-text-main)]" aria-label="Barter">
           BARTER
         </router-link>
 
@@ -25,7 +25,7 @@
           <router-link to="/create-listing" class="btn btn-sm hidden md:inline-flex">{{ $t('nav.list') }}</router-link>
           <router-link
             :to="`/profile/${user.uid}`"
-            class="hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-orange-100 text-xs font-bold text-orange-800"
+            class="hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-zinc-200 text-xs font-bold text-zinc-700"
             :aria-label="$t('nav.me')"
           >
             {{ initials }}
@@ -216,7 +216,7 @@ onUnmounted(() => {
     height: 28px;
     border-radius: 10px;
     background: var(--color-primary);
-    color: #fff;
+    color: var(--color-on-primary);
   }
   .tab-add svg {
     width: 20px;

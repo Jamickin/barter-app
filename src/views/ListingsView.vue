@@ -16,7 +16,7 @@
       <div class="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 no-scrollbar md:mx-0 md:flex-wrap md:px-0">
         <button type="button" class="chip" :class="{ 'chip-on': !selectedCategory }" @click="selectedCategory = ''">{{ $t('browse.all') }}</button>
         <button v-for="c in categories" :key="c.id" type="button" class="chip" :class="{ 'chip-on': selectedCategory === c.id }" @click="selectedCategory = c.id">
-          <span aria-hidden="true">{{ c.icon }}</span>{{ categoryName(c) }}
+          <CategoryIcon :id="c.id" class="h-4 w-4" />{{ categoryName(c) }}
         </button>
       </div>
     </div>
@@ -43,7 +43,7 @@
     </div>
 
     <div v-else class="card mx-auto max-w-md px-6 py-10 text-center">
-      <div class="text-4xl">🔍</div>
+      
       <h2 class="mt-3 text-lg font-bold">{{ $t('browse.emptyTitle') }}</h2>
       <p class="mt-1 text-[var(--color-text-secondary)]">{{ $t('browse.emptyText') }}</p>
       <div class="mt-5 flex flex-col gap-2">
@@ -59,6 +59,7 @@
 </template>
 
 <script setup>
+import CategoryIcon from '../components/CategoryIcon.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { db } from '../firebase'

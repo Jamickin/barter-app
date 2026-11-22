@@ -10,7 +10,7 @@
           :key="c"
           type="button"
           class="flex min-h-14 items-center gap-3 rounded-xl border px-3 text-left"
-          :class="prefs.country === c ? 'border-[var(--color-primary)] bg-orange-50 dark:bg-orange-950/30' : 'border-[var(--color-border)]'"
+          :class="prefs.country === c ? 'border-[var(--color-primary)] bg-zinc-100 dark:bg-zinc-800' : 'border-[var(--color-border)]'"
           @click="prefs.country = c"
         >
           <FlagIcon :code="c" :size="28" />
@@ -25,7 +25,7 @@
           :key="l.code"
           type="button"
           class="flex min-h-12 items-center justify-between rounded-xl border px-3 font-medium"
-          :class="prefs.locale === l.code ? 'border-[var(--color-primary)] bg-orange-50 dark:bg-orange-950/30' : 'border-[var(--color-border)]'"
+          :class="prefs.locale === l.code ? 'border-[var(--color-primary)] bg-zinc-100 dark:bg-zinc-800' : 'border-[var(--color-border)]'"
           @click="prefs.locale = l.code"
         >
           {{ l.name }}
@@ -41,7 +41,7 @@
           :key="m"
           type="button"
           class="min-h-12 rounded-xl border px-3 font-medium"
-          :class="theme === m ? 'border-[var(--color-primary)] bg-orange-50 dark:bg-orange-950/30' : 'border-[var(--color-border)]'"
+          :class="theme === m ? 'border-[var(--color-primary)] bg-zinc-100 dark:bg-zinc-800' : 'border-[var(--color-border)]'"
           @click="setTheme(m)"
         >
           {{ m === 'light' ? '☀️ ' + $t('prefs.light') : '🌙 ' + $t('prefs.dark') }}

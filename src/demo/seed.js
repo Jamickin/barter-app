@@ -55,7 +55,6 @@ export function seedState() {
   const now = Date.now()
   const ts = (hoursAgo) => ({ __ts: now - hoursAgo * HOUR })
   const cats = Object.fromEntries(DEFAULT_CATEGORIES.map(({ id, ...c }) => [id, c]))
-  const iconOf = (id) => cats[id]?.icon
 
   const users = {}
   const accounts = {}
@@ -94,7 +93,7 @@ export function seedState() {
       area: owner.area,
       topup: l.topup || null,
       boosted_until: l.boostH ? { __ts: now + l.boostH * HOUR } : null,
-      image_url: placeholderArt(iconOf(l.cat), l.hue),
+      image_url: placeholderArt(l.cat),
       by_user_id: l.by,
       owner: { name: owner.name, email: owner.email },
       created_at: ts(l.hoursAgo),

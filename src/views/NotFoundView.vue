@@ -1,6 +1,6 @@
 <template>
   <div class="mx-auto max-w-sm py-12 text-center">
-    <div class="text-5xl">🧭</div>
+    
     <h1 class="mt-4 text-2xl font-extrabold">{{ $t('notFound.title') }}</h1>
     <p class="mt-2 text-[var(--color-text-secondary)]">{{ $t('notFound.text') }}</p>
     <div class="mt-6 flex flex-col gap-2">

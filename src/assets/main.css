@@ -10,8 +10,9 @@
 }
 
 :root {
-  --color-primary: #ea580c;
-  --color-primary-hover: #f97316;
+  --color-primary: #18181b;
+  --color-primary-hover: #3f3f46;
+  --color-on-primary: #ffffff;
   --color-background: #ffffff;
   --color-page: #f7f7f8;
   --color-text-main: #18181b;
@@ -23,6 +24,9 @@
 }
 
 .dark-theme {
+  --color-primary: #fafafa;
+  --color-primary-hover: #e4e4e7;
+  --color-on-primary: #18181b;
   --color-background: #18181b;
   --color-page: #0f0f11;
   --color-text-main: #fafafa;
@@ -92,7 +96,7 @@ html.has-nl-badge #nl-badge-frame {
   textarea:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent);
   }
   input:disabled,
   select:disabled {
@@ -149,8 +153,7 @@ html.has-nl-badge #nl-badge-frame {
   .btn,
   .btn-primary {
     background: var(--color-primary);
-    color: #fff;
-    box-shadow: 0 1px 2px rgb(234 88 12 / 0.25), 0 6px 16px -6px rgb(234 88 12 / 0.5);
+    color: var(--color-on-primary);
   }
   .btn:hover,
   .btn-primary:hover {

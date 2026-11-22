@@ -93,13 +93,8 @@ export const DEFAULT_CATEGORIES = [
 
 // Category names are translated by id; a stored name is only a fallback for custom categories.
 export const categoryName = (c) => (c ? t(`cat.${c.id}`, {}, c.name || c.id) : t('cat.other'))
-export const categoryIcon = (categories, id) => categories.find((c) => c.id === id)?.icon || '📦'
+export { placeholderArt } from './icons.js'
 
-// Simple picture for a listing with no photo: category icon on a warm tile. No network, ~1 KB.
-export function placeholderArt(icon = '📦', hue = 24) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},85%,92%)"/><stop offset="1" stop-color="hsl(${(hue + 30) % 360},75%,80%)"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/><g fill="hsl(${hue},60%,40%)" opacity=".08"><circle cx="60" cy="50" r="40"/><circle cx="350" cy="250" r="70"/><circle cx="330" cy="40" r="18"/></g><text x="200" y="150" font-size="120" text-anchor="middle" dominant-baseline="central">${icon}</text></svg>`
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
-}
 
 export const isBoosted = (l) => {
   const u = l?.boosted_until

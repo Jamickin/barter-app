@@ -22,7 +22,7 @@
             v-for="p in plans"
             :key="p.id"
             class="relative flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border-2 px-4"
-            :class="plan === p.id ? 'border-[var(--color-primary)] bg-orange-50 dark:bg-orange-950/30' : 'border-[var(--color-border)]'"
+            :class="plan === p.id ? 'border-[var(--color-primary)] bg-zinc-100 dark:bg-zinc-800' : 'border-[var(--color-border)]'"
           >
             <input v-model="plan" type="radio" :value="p.id" class="sr-only" />
             <span class="flex-1">
@@ -44,7 +44,7 @@
             v-for="m in methods"
             :key="m"
             class="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border-2 px-4"
-            :class="method === m ? 'border-[var(--color-primary)] bg-orange-50 dark:bg-orange-950/30' : 'border-[var(--color-border)]'"
+            :class="method === m ? 'border-[var(--color-primary)] bg-zinc-100 dark:bg-zinc-800' : 'border-[var(--color-border)]'"
           >
             <input v-model="method" type="radio" :value="m" class="sr-only" />
             <span class="grid h-9 w-9 place-items-center rounded-lg text-xs font-extrabold text-white" :style="{ background: METHOD_STYLE[m].bg }">{{ METHOD_STYLE[m].mark }}</span>
@@ -77,7 +77,7 @@
           <div class="flex justify-between gap-4 p-3"><dt class="text-[var(--color-text-light)]">{{ $t('boost.method') }}</dt><dd class="font-medium">{{ $t(`pay.${method}`) }}<template v-if="isPhoneMethod"> · {{ phone }}</template></dd></div>
           <div class="flex justify-between gap-4 p-3 text-base"><dt class="font-semibold">{{ $t('boost.total') }}</dt><dd class="font-bold">{{ money(chosen.amount, chosen.currency) }}</dd></div>
         </dl>
-        <p v-if="isDemo" class="mt-3 rounded-lg bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">{{ $t('boost.demoNote') }}</p>
+        <p v-if="isDemo" class="mt-3 rounded-lg bg-zinc-100 p-3 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{{ $t('boost.demoNote') }}</p>
         <p class="mt-3 text-xs text-[var(--color-text-light)]">
           {{ $t('boost.agree') }} <router-link to="/boost-terms" class="underline" target="_blank">{{ $t('footer.boosts') }}</router-link>.
         </p>

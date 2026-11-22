@@ -6,7 +6,7 @@
         <img v-if="preview" :src="preview" alt="" class="h-full w-full object-cover" />
         <span v-if="preview" class="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1.5 text-sm font-medium text-white">{{ $t('form.changePhoto') }}</span>
         <span v-else class="flex flex-col items-center gap-2 text-center">
-          <span class="grid h-14 w-14 place-items-center rounded-full bg-orange-100 text-2xl dark:bg-orange-950/50">📷</span>
+          <span class="grid h-14 w-14 place-items-center rounded-full bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"><svg viewBox="0 0 24 24" class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"/><path d="M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/></svg></span>
           <span class="font-semibold">{{ $t('form.addPhoto') }}</span>
           <span class="text-sm text-[var(--color-text-light)]">{{ $t('form.photoHint') }}</span>
         </span>
@@ -32,7 +32,7 @@
       <legend class="label">{{ $t('form.category') }}</legend>
       <div class="flex flex-wrap gap-2">
         <button v-for="c in categories" :key="c.id" type="button" class="chip" :class="{ 'chip-on': f.category_id === c.id }" :aria-pressed="f.category_id === c.id" @click="f.category_id = c.id">
-          <span aria-hidden="true">{{ c.icon }}</span>{{ categoryName(c) }}
+          <CategoryIcon :id="c.id" class="h-4 w-4" />{{ categoryName(c) }}
         </button>
       </div>
       <p v-if="errors.category_id" class="field-error">{{ errors.category_id }}</p>
@@ -86,6 +86,7 @@
 </template>
 
 <script setup>
+import CategoryIcon from './CategoryIcon.vue'
 import { ref, computed, reactive, watch } from 'vue'
 import TopupInput from './TopupInput.vue'
 import { country, categoryName } from '../lib/regions.js'

@@ -44,7 +44,7 @@
         <span class="hint block">{{ $t('auth.passwordHint') }}</span>
         <span v-if="errors.password" class="field-error block">{{ errors.password }}</span>
       </label>
-      <p v-if="isDemo" class="rounded-xl bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">{{ $t('auth.demoPasswordNote') }}</p>
+      <p v-if="isDemo" class="rounded-xl bg-zinc-100 p-3 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{{ $t('auth.demoPasswordNote') }}</p>
       <label class="flex items-start gap-3 text-sm">
         <input v-model="agree" type="checkbox" class="mt-0.5" />
         <span>

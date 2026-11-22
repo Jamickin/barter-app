@@ -2,7 +2,7 @@
 // Every visitor gets their own copy of the seeded world, so testers can't see or break each other's data.
 import { seedState } from './seed.js'
 
-const KEY = 'barter-demo-v2'
+const KEY = 'barter-demo-v3'
 const listeners = new Set()
 
 export class Timestamp {
