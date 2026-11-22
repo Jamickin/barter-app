@@ -32,7 +32,7 @@
 
     <button
       type="button"
-      class="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
+      class="absolute right-2 top-2 grid h-10 w-10 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
       :class="isSaved ? 'text-red-500' : 'text-zinc-700'"
       :aria-label="isSaved ? $t('card.unsave') : $t('card.save')"
       :aria-pressed="isSaved"

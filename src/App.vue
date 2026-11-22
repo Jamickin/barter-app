@@ -4,7 +4,7 @@
 
     <header class="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-background)]/90 backdrop-blur">
       <div class="container flex h-14 items-center gap-2">
-        <router-link to="/" class="mr-auto text-xl font-extrabold tracking-wide text-[var(--color-text-main)]" aria-label="Barter">
+        <router-link to="/" class="mr-auto flex h-11 items-center text-xl font-extrabold tracking-wide text-[var(--color-text-main)]" aria-label="Barter">
           BARTER
         </router-link>
 
@@ -232,7 +232,7 @@ onUnmounted(() => {
     border-radius: 9999px;
     background: #dc2626;
     color: #fff;
-    font-size: 10px;
+    font-size: 11px;
     font-style: normal;
     font-weight: 700;
     display: grid;

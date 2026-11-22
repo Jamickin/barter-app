@@ -16,7 +16,7 @@
         </form>
         <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
           <span class="text-[var(--color-text-light)]">{{ $t('home.popular') }}</span>
-          <button v-for="s in popular" :key="s" type="button" class="chip !min-h-8" @click="search(s)">{{ s }}</button>
+          <button v-for="s in popular" :key="s" type="button" class="chip" @click="search(s)">{{ s }}</button>
         </div>
 
         <button v-if="isDemo && !isAuthenticated" type="button" class="mt-6 text-sm font-medium text-[var(--color-text-secondary)] underline underline-offset-4 hover:text-[var(--color-text-main)]" @click="tryDemo">
@@ -54,7 +54,7 @@
     <section v-if="boosted.length">
       <div class="mb-3 flex items-end justify-between">
         <h2 class="section-title !mb-0 flex items-center gap-1.5"><TabIcon name="bolt" class="h-5 w-5 text-[var(--color-text-main)]" />{{ $t('home.featured') }}</h2>
-        <router-link to="/listings" class="text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
+        <router-link to="/listings" class="-my-2 inline-flex min-h-10 items-center px-1 text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
       </div>
       <div class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 no-scrollbar md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:px-0">
         <div v-for="l in boosted" :key="l.id" class="w-[44%] shrink-0 snap-start md:w-auto">
@@ -67,7 +67,7 @@
     <section>
       <div class="mb-3 flex items-end justify-between">
         <h2 class="section-title !mb-0">{{ $t('home.latest') }}</h2>
-        <router-link to="/listings" class="text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
+        <router-link to="/listings" class="-my-2 inline-flex min-h-10 items-center px-1 text-sm font-semibold text-[var(--color-primary)]">{{ $t('common.seeAll') }}</router-link>
       </div>
       <div class="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-4 md:gap-x-5">
         <template v-if="isLoading">

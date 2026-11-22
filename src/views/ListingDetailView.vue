@@ -96,7 +96,7 @@
               <button type="button" class="btn btn-sm" @click="openBoost">{{ $t('detail.boostShort') }}</button>
             </div>
             <p v-else-if="boosted" class="mt-3 text-sm text-[var(--color-text-secondary)]">{{ $t('detail.boostedUntil', { date: boostedUntilText }) }}</p>
-            <button type="button" class="mt-4 text-sm font-medium text-red-600" @click="showDelete = true">{{ $t('detail.delete') }}</button>
+            <button type="button" class="mt-2 inline-flex min-h-10 items-center text-sm font-medium text-red-600" @click="showDelete = true">{{ $t('detail.delete') }}</button>
           </div>
 
           <!-- Description -->
@@ -126,10 +126,10 @@
             <ul class="mt-3 list-disc space-y-1 pl-5 text-[var(--color-text-secondary)]">
               <li v-for="i in 4" :key="i">{{ $t(`detail.safety${i}`) }}</li>
             </ul>
-            <router-link to="/guidelines" class="mt-2 inline-block font-medium text-[var(--color-primary)]">{{ $t('detail.readGuidelines') }}</router-link>
+            <router-link to="/guidelines" class="mt-1 inline-flex min-h-10 items-center font-medium text-[var(--color-primary)]">{{ $t('detail.readGuidelines') }}</router-link>
           </details>
 
-          <button v-if="!isOwner" type="button" class="inline-flex items-center gap-1.5 self-start text-sm text-[var(--color-text-light)] hover:text-red-600" @click="showReport = true">
+          <button v-if="!isOwner" type="button" class="inline-flex min-h-10 items-center gap-1.5 self-start text-sm text-[var(--color-text-light)] hover:text-red-600" @click="showReport = true">
             <TabIcon name="flag" class="h-4 w-4" />{{ $t('detail.report') }}
           </button>
         </div>
@@ -483,8 +483,8 @@ async function deleteListing() {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 26px;
-  padding: 0 10px;
+  min-height: 32px;
+  padding: 0 12px;
   border-radius: 9999px;
 }
 .icon-btn {

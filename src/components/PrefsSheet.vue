@@ -44,7 +44,7 @@
           :class="theme === m ? 'border-[var(--color-primary)] bg-zinc-100 dark:bg-zinc-800' : 'border-[var(--color-border)]'"
           @click="setTheme(m)"
         >
-          {{ m === 'light' ? '☀️ ' + $t('prefs.light') : '🌙 ' + $t('prefs.dark') }}
+          {{ m === 'light' ? $t('prefs.light') : $t('prefs.dark') }}
         </button>
       </div>
 

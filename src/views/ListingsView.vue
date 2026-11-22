@@ -27,7 +27,7 @@
       </span>
       <div class="flex items-center gap-3">
         <button v-if="hasFilters" type="button" class="font-semibold text-[var(--color-primary)]" @click="resetFilters">{{ $t('browse.clear') }}</button>
-        <select v-model="sort" class="!min-h-9 !w-auto !py-1 !pl-3 !pr-8 !text-sm" :aria-label="$t('browse.sort')">
+        <select v-model="sort" class="!min-h-10 !w-auto !py-1 !pl-3 !pr-8 !text-sm" :aria-label="$t('browse.sort')">
           <option value="recommended">{{ $t('browse.sortRecommended') }}</option>
           <option value="newest">{{ $t('browse.sortNewest') }}</option>
         </select>

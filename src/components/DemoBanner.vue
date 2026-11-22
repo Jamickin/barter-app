@@ -1,6 +1,6 @@
 <template>
   <div class="bg-zinc-900 text-zinc-200 text-[13px]">
-    <div class="container flex h-10 items-center gap-3">
+    <div class="container flex h-12 items-center gap-3">
       <span class="inline-flex items-center gap-1.5 font-semibold text-zinc-400 shrink-0">
         <span class="h-1.5 w-1.5 rounded-full bg-zinc-400 animate-pulse"></span>{{ $t('demo.label') }}
       </span>
@@ -54,7 +54,8 @@ function reset() {
 
 <style scoped>
 .demo-btn {
-  height: 28px;
+  height: 36px;
+  min-width: 36px;
   border: 1px solid #3f3f46;
   color: #e4e4e7;
   border-radius: 8px;
@@ -71,8 +72,8 @@ function reset() {
   font-weight: 600;
 }
 .demo-select {
-  min-height: 28px;
-  height: 28px;
+  min-height: 36px;
+  height: 36px;
   width: auto;
   max-width: 11rem;
   padding: 0 26px 0 10px;
