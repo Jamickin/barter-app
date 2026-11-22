@@ -46,7 +46,4 @@ node scripts/i18n-check.mjs   # missing translations per language
 
 ## Deploy
 
-```sh
-npx vite build
-npx netlify-cli deploy --prod --dir dist --no-build
-```
+Pushing to `master` deploys automatically: Netlify (site `barter-zw`) is linked to this repo, builds with `npm run build` and publishes `dist` (see `netlify.toml`).
